@@ -8,10 +8,7 @@ import { CategoryModule } from './modules/category/category.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
-    }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     ProductModule,
     MongoDBModule,
     CategoryModule,
