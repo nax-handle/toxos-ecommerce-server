@@ -6,14 +6,11 @@ import {
   Post,
   UploadedFiles,
   UseInterceptors,
-  ValidationPipe,
+  // ValidationPipe,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
-import {
-  FileFieldsInterceptor,
-} from '@nestjs/platform-express';
-import { Multer } from 'multer';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @Controller('product')
 export class ProductController {
@@ -26,15 +23,15 @@ export class ProductController {
     ]),
   )
   async create(
-    @Body() body: CreateProductDto,
+    @Body('body') bodyString: string,
     @UploadedFiles()
     files: {
-      avatar?: Multer.File[];
-      background?: Multer.File[];
+      product_images?: Express.Multer.File[];
+      variant_images?: Express.Multer.File[];
     },
   ) {
-    console.log(files);
-    // await this.productService.createProduct({ ...body });
+    const body = JSON.parse(bodyString) as CreateProductDto;
+    await this.productService.createProduct({ ...body, files: files });
     return { message: 'success' };
   }
   @Get(':slug')

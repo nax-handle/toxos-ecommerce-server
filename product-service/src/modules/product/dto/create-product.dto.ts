@@ -11,6 +11,10 @@ import {
 import { Types } from 'mongoose';
 
 export class CreateProductDto {
+  files: {
+    product_images?: Express.Multer.File[];
+    variant_images?: Express.Multer.File[];
+  };
   @IsNotEmpty()
   @IsString()
   title: string;
@@ -48,6 +52,10 @@ export class CreateProductDto {
 export class VariantOptionDto {
   @IsNotEmpty()
   @IsString()
+  title: string;
+
+  @IsNotEmpty()
+  @IsString()
   name: string;
 
   @IsNotEmpty()
@@ -60,6 +68,10 @@ export class VariantOptionDto {
 }
 
 export class ProductVariantDto {
+  @IsNotEmpty()
+  @IsString()
+  title: string;
+
   @IsNotEmpty()
   @IsString()
   name: string;

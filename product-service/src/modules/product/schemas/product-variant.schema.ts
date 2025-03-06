@@ -10,6 +10,9 @@ export class VariantOption {
   _id: Types.ObjectId;
 
   @Prop({ required: true })
+  title: string;
+
+  @Prop({ required: true })
   name: string;
 
   @Prop({ required: true })
@@ -33,6 +36,9 @@ export const VariantOptionSchema = SchemaFactory.createForClass(VariantOption);
 export class ProductVariant {
   @Prop({ type: SchemaTypes.ObjectId, default: () => new Types.ObjectId() })
   _id: Types.ObjectId;
+
+  @Prop({ required: true })
+  title: string;
 
   @Prop({ required: true })
   name: string;

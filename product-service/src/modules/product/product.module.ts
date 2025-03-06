@@ -5,11 +5,11 @@ import { MensFashionFactory } from './factories/mens-fashtion/mens-fashion.facto
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from './schemas/product.schema';
 import { CategoryModule } from '../category/category.module';
-
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
-
+    CloudinaryModule,
     CategoryModule,
   ],
   controllers: [ProductController],
