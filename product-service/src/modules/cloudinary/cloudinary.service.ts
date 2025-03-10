@@ -30,17 +30,12 @@ export class CloudinaryService {
   }
 
   async uploadMultipleFiles(files: Express.Multer.File[]): Promise<string[]> {
-    console.log('Received files:', files);
-
     if (!files?.length) {
-      console.log('No files received!');
       return [];
     }
     const validFiles = files.filter((file) => file?.buffer);
-    console.log('Valid files for upload:', validFiles);
 
     if (!validFiles.length) {
-      console.log('No valid files with buffer found!');
       return [];
     }
 

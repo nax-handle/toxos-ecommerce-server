@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package product;
+
+service ProductService {
+  rpc FindOne (ProductById) returns (ProductResponse);
+  rpc FindMany (ProductsByIds) returns (ProductsResponse);
+}
+
+message ProductById {
+  string id = 1;
+}
+
+message ProductsByIds {
+  repeated string ids = 1;
+}
+
+message ProductResponse {
+  string _id = 1;
+  string title = 2;
+  double price = 3;
+  string status = 4;
+  double stock = 5;
+  string description = 6;
+  string thumbnail = 7;
+  int32 soldCount = 8;
+  string brand = 9;
+  string origin = 10;
+}
+
+message ProductsResponse {
+  repeated ProductResponse items = 1;
+}

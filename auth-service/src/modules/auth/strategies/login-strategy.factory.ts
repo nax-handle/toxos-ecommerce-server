@@ -26,16 +26,3 @@ export class LoginStrategy {
     return strategy;
   }
 }
-
-// create(strategyName: string): LoginStrategy {
-//   switch (strategyName) {
-//     case 'email':
-//       return new EmailLoginStrategy();
-//     case 'google':
-//       return new GoogleLoginStrategy();
-//     case 'facebook':
-//       return new FacebookLoginStrategy();
-//     default:
-//       throw new Error(`Login strategy ${strategyName} not supported`);
-//   }
-// }

@@ -10,7 +10,7 @@ export class Collection extends BaseProduct {
     Object.assign(this, params.attributes);
   }
 
-  getData(): Product {
+  getAttributes(): Product {
     return {
       ...this,
       attributes: {

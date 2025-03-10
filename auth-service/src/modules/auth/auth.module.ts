@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './services/auth.service';
 import { AuthController } from './auth.controller';
-import { LoginStrategyFactory } from './strategies/login-strategy.factory';
+import { LoginStrategy } from './strategies/login-strategy.factory';
 import { EmailService } from '../email/email.service';
 import { UserModule } from '../user/user.module';
 import { OtpService } from './services/otp.service';
@@ -12,7 +12,9 @@ import { RolesGuard } from 'src/common/guards/role.guard';
 import { UserService } from '../user/user.service';
 import { User } from '../user/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
+import { EmailLoginStrategy } from './strategies/email-login.strategy';
+import { GoogleLoginStrategy } from './strategies/google-login.strategy';
+import { FacebookLoginStrategy } from './strategies/facebook-login.strategy';
 @Module({
   imports: [
     UserModule,
@@ -26,10 +28,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     OtpService,
     TokenService,
     JwtService,
-    LoginStrategyFactory,
+    LoginStrategy,
     ConfigService,
     RolesGuard,
     UserService,
+    EmailLoginStrategy,
+    GoogleLoginStrategy,
+    FacebookLoginStrategy,
   ],
 })
 export class AuthModule {}

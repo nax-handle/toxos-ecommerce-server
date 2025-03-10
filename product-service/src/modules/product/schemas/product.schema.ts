@@ -24,6 +24,9 @@ export class Product {
   price: number;
 
   @Prop({ default: 0 })
+  discount: number;
+
+  @Prop({ default: 0 })
   stock: number;
 
   @Prop({ required: true })

@@ -8,7 +8,7 @@ export class Pants extends BaseProduct {
     super(params);
     Object.assign(this, params.attributes);
   }
-  override getData(): Product {
+  override getAttributes(): Product {
     return {
       ...this,
       attributes: {

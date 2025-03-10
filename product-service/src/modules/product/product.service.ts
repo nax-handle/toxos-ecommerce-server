@@ -25,7 +25,6 @@ export class ProductService {
   ) {}
   async createProduct(createProductDto: CreateProductDto): Promise<void> {
     const { subcategoryId, title, files, variants } = createProductDto;
-    console.log(files);
     const subcategory =
       await this.categoryService.findSubCategory(subcategoryId);
     const categoryFactory = this.productFactory[subcategory.category.type];
@@ -37,23 +36,21 @@ export class ProductService {
       this.cloudinaryService.uploadMultipleFiles(files.product_images || []),
       this.cloudinaryService.uploadMultipleFiles(files.variant_images || []),
     ]);
-    console.log(uploadedProductImages);
-    console.log(uploadedVariantImages);
     const newVariants = await this.mapVariantWithImages(
       variants,
       uploadedVariantImages,
     );
-    console.log(newVariants);
     await this.productModel.create({
       thumbnail: uploadedProductImages[0],
       images: uploadedProductImages,
       category: subcategory.category._id,
       subcategory: subcategory._id,
-      ...product.getData(),
+      ...product.getAttributes(),
       slug: getSlug(title) + randomString(4),
       variants: newVariants,
     });
   }
+
   mapVariantWithImages(
     variants: ProductVariantDto[],
     images: string[],
@@ -76,5 +73,22 @@ export class ProductService {
   }
   async deleteById(_id: string): Promise<void> {
     await this.productModel.findByIdAndDelete(ObjectId(_id));
+  }
+
+  async findOne(_id: string): Promise<Product> {
+    const product = await this.productModel.findById(ObjectId(_id));
+    console.log(product);
+    if (!product) throw new BadRequestException('Product not found');
+    return product;
+  }
+
+  async findMany(_ids: string[]): Promise<Product[]> {
+    const objectIds = _ids.map((id) => ObjectId(id));
+    const products = await this.productModel
+      .find({ _id: { $in: objectIds } })
+      .lean()
+      .exec();
+    if (!products) throw new BadRequestException('Product not found');
+    return products;
   }
 }

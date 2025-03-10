@@ -1,4 +1,4 @@
-<h1 align="center">Curxor - E-commerce</h1>
+<h1 align="center">X - E-commerce</h1>
 
 ## 🚀 Project Overview
 

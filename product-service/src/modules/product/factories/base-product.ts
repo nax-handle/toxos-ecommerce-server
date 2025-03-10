@@ -1,7 +1,7 @@
 import { CreateProductDto } from '../dto/create-product.dto';
 import { Product } from '../interfaces/product.interface';
 
-export abstract class BaseProduct implements Product {
+export abstract class BaseProduct {
   public title: string;
   public slug: string;
   public status: string;
@@ -18,5 +18,5 @@ export abstract class BaseProduct implements Product {
   constructor(params: CreateProductDto) {
     Object.assign(this, params);
   }
-  abstract getData(): Product;
+  abstract getAttributes(): Product;
 }

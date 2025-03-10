@@ -10,5 +10,5 @@ export interface Product {
   shopId: string;
   categoryId: string;
   attributes: Record<any, string>;
-  getData(): Product;
+  getAttributes(): Product;
 }

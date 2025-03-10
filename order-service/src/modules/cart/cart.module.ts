@@ -4,24 +4,20 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { CartService } from './cart.service';
 import { CartController } from './cart.controller';
-import { RedisModule } from '../redis/redis.module';
-
+import { RedisModule } from 'src/databases/redis/redis.module';
 @Module({
   imports: [
     ConfigModule,
     RedisModule,
-    ClientsModule.registerAsync([
+    ClientsModule.register([
       {
-        name: 'PRODUCT_PACKAGE',
-        useFactory: (configService: ConfigService) => ({
-          transport: Transport.GRPC,
-          options: {
-            url: configService.get('PRODUCT_SERVICE_URL'),
-            package: 'product',
-            protoPath: join(__dirname, '../../../proto/product.proto'),
-          },
-        }),
-        inject: [ConfigService],
+        name: 'PRODUCT_SERVICE',
+        transport: Transport.GRPC,
+        options: {
+          url: '0.0.0.0:50052',
+          package: 'product',
+          protoPath: 'src/protos/product.proto',
+        },
       },
     ]),
   ],
