@@ -9,11 +9,7 @@ import {
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { Voucher } from './interfaces/cart.interface';
-
-class AddToCartDto {
-  productId: string;
-  quantity: number;
-}
+import { AddToCartDto } from './dtos/add-to-cart.dto';
 
 class UpdateCartItemDto {
   quantity: number;
@@ -29,11 +25,9 @@ export class CartController {
   }
 
   @Post(':userId/items')
-  async addToCart(
-    @Param('userId') userId: string,
-    @Body() { productId, quantity }: AddToCartDto,
-  ) {
-    return this.cartService.addToCart(userId, productId, quantity);
+  async addToCart(@Param('userId') userId: string, @Body() body: AddToCartDto) {
+    const { productId } = body;
+    return this.cartService.addToCart(userId, body, productId);
   }
 
   @Delete(':userId/items/:productId')

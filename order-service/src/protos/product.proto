@@ -15,17 +15,42 @@ message ProductsByIds {
   repeated string ids = 1;
 }
 
+
+
 message ProductResponse {
   string _id = 1;
-  string title = 2;
-  double price = 3;
-  string status = 4;
+  string slug = 2;
+  string title = 3;
+  double price = 4;
+  string status = 5;
+  double stock = 6;
+  string description = 7;
+  string thumbnail = 8;
+  int32 soldCount = 9;
+  string brand = 10;
+  string origin = 11;
+  string shopId = 12;
+  bool hasVariant = 13;
+  repeated Variant variants = 14;
+}
+
+message Variant {
+  string _id = 1;
+  string name = 2;
+  string image = 3;
+  double price = 4;
   double stock = 5;
-  string description = 6;
-  string thumbnail = 7;
-  int32 soldCount = 8;
-  string brand = 9;
-  string origin = 10;
+  string sku = 6;
+  bool hasOption = 7;
+  repeated Option options = 8;
+}
+
+message Option {
+  string _id = 1;
+  string name = 2;
+  int32 stock = 3;
+  string sku = 4;
+
 }
 
 message ProductsResponse {

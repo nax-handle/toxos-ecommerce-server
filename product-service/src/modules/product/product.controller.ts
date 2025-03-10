@@ -12,7 +12,6 @@ import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { GrpcMethod } from '@nestjs/microservices';
-import { arrayObjectIdToString } from 'src/utils/object-id';
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
@@ -41,13 +40,26 @@ export class ProductController {
     const data = await this.productService.getBySlug(slug);
     return { message: 'success', data };
   }
-  @Get(':id')
+  @Post('test')
+  async testGetVariant(
+    @Body()
+    bodyString: {
+      productId: string;
+      variantId: string;
+      optionId: string;
+    }[],
+  ) {
+    console.log(bodyString);
+    const data =
+      await this.productService.findProductsWithVariantsAndOptions(bodyString);
+    return { message: data };
+  }
+  @Get()
   async deleteById(@Param() params: { id: string }) {
     const { id } = params;
     const data = await this.productService.deleteById(id);
     return { message: 'success', data };
   }
-
   @GrpcMethod('ProductService', 'FindOne')
   findOne(data: { id: string }) {
     console.log(data);
@@ -55,9 +67,7 @@ export class ProductController {
   }
   @GrpcMethod('ProductService', 'FindMany')
   async findMany(data: { ids: string[] }) {
-    console.log(data);
     const items = await this.productService.findMany(data.ids);
-    console.log(arrayObjectIdToString(items));
-    return { items: arrayObjectIdToString(items) };
+    return { items: items };
   }
 }

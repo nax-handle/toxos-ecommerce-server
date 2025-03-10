@@ -1,15 +1,8 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { firstValueFrom, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { RedisService } from 'src/databases/redis/redis.service';
-import { Cart, CartItem, Voucher } from './interfaces/cart.interface';
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  stock: number;
-}
+import { AddToCartDto } from './dtos/add-to-cart.dto';
 
 interface ProductService {
   FindOne(data: { id: string }): Observable<any>;
@@ -27,16 +20,73 @@ export class CartService implements OnModuleInit {
     this.productService =
       this.client.getService<ProductService>('ProductService');
   }
-  async addToCart(userId: string, productId: string, quantity: number) {
-    await this.redisService.addToCart(userId, quantity, productId);
+  async addToCart(userId: string, addToCart: AddToCartDto, productId: string) {
+    await this.redisService.addToCart(userId, productId, addToCart);
     return this.getCart(userId);
   }
+  async getShopDummy() {
+    return {
+      items: [
+        {
+          _id: '123',
+          name: 'Shop 1',
+        },
+        {
+          _id: '1234',
+          name: 'Shop 2',
+        },
+      ],
+    };
+  }
+  async getCart(userId: string): Promise<any> {
+    const cartItems = await this.redisService.getCart(userId);
+    if (!cartItems) return [];
 
-  async removeFromCart(userId: string, productId: string) {
-    await this.redisService.removeFromCart(userId, productId);
-    return this.getCart(userId);
+    const { productIds, allCartItems } = cartItems;
+    const shopIds = Object.keys(allCartItems);
+
+    const [productsResponse, shopsResponse] = await Promise.all([
+      productIds.length
+        ? this.productService.FindMany({ ids: productIds }).toPromise()
+        : { items: [] },
+      this.getShopDummy(),
+      // shopIds.length
+      //   ? this.shopService.FindMany({ ids: shopIds }).toPromise()
+      //   : { items: [] },
+    ]);
+    console.log(productsResponse);
+    const productMap = new Map(
+      productsResponse.items.map((product) => [product._id, product]),
+    );
+
+    const shopMap = new Map(
+      shopsResponse.items.map((shop) => [shop._id, { ...shop, products: [] }]),
+    );
+
+    const shopList = shopIds.map((shopId) => ({
+      ...(shopMap.get(shopId) || {}),
+      products: allCartItems[shopId]
+        .map((cartItem) => {
+          const product = productMap.get(cartItem.productId);
+          if (!product) return null;
+          return {
+            ...product,
+            shopId,
+            quantity: cartItem.quantity,
+            variantId: cartItem.variantId,
+            optionId: cartItem.optionId,
+          };
+        })
+    }));
+
+    console.log(shopList);
+    return shopList;
   }
 
+  async clearCart(userId: string) {
+    // await this.redisService.deleteCart(userId);
+    return { items: [], total: 0 };
+  }
   async updateCartItemQuantity(
     userId: string,
     productId: string,
@@ -45,22 +95,8 @@ export class CartService implements OnModuleInit {
     return this.getCart(userId);
   }
 
-  async getCart(userId: string): Promise<any> {
-    const cartItems = await this.redisService.getCart(userId);
-    const productsResponse = await this.productService
-      .FindMany({ ids: Object.keys(cartItems) })
-      .toPromise();
-    console.log(cartItems);
-    const cartWithQuantity = productsResponse.items.map((product) => ({
-      ...product,
-      quantity: JSON.parse(cartItems[product._id]),
-      total: product.price * JSON.parse(cartItems[product._id]),
-    }));
-    return cartWithQuantity;
-  }
-
-  async clearCart(userId: string) {
-    await this.redisService.deleteCart(userId);
-    return { items: [], total: 0 };
+  async removeFromCart(userId: string, productId: string) {
+    await this.redisService.removeFromCart(userId, productId);
+    return this.getCart(userId);
   }
 }

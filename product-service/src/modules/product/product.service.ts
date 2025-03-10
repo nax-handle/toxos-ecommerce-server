@@ -36,10 +36,13 @@ export class ProductService {
       this.cloudinaryService.uploadMultipleFiles(files.product_images || []),
       this.cloudinaryService.uploadMultipleFiles(files.variant_images || []),
     ]);
-    const newVariants = await this.mapVariantWithImages(
-      variants,
-      uploadedVariantImages,
-    );
+    let newVariants: ProductVariantDto[] = [];
+    if (variants) {
+      newVariants = await this.mapVariantWithImages(
+        variants,
+        uploadedVariantImages,
+      );
+    }
     await this.productModel.create({
       thumbnail: uploadedProductImages[0],
       images: uploadedProductImages,
@@ -90,5 +93,33 @@ export class ProductService {
       .exec();
     if (!products) throw new BadRequestException('Product not found');
     return products;
+  }
+  async findProductsWithVariantsAndOptions(
+    data: { productId: string; variantId?: string; optionId?: string }[],
+  ) {
+    // const productIds = data.map(({ productId }) => ObjectId(productId));
+    // const products = await this.productModel
+    //   .find({ _id: { $in: productIds } })
+    //   .lean();
+    // const productMap = new Map(products.map((p) => [p._id.toString(), p]));
+    // return data.map(({ productId, variantId, optionId }) => {
+    //   const product = productMap.get(productId);
+    //   if (!product) throw new Error(`Product with ID ${productId} not found`);
+    //   if (!variantId) return product;
+    //   const variant = product.variants.find(
+    //     (v) => v._id.toString() === variantId,
+    //   );
+    //   if (!variant)
+    //     throw new Error(
+    //       `Variant with ID ${variantId} not found in product ${productId}`,
+    //     );
+    //   if (!optionId) return variant;
+    //   const option = variant.options.find((o) => o._id.toString() === optionId);
+    //   if (!option)
+    //     throw new Error(
+    //       `Option with ID ${optionId} not found in variant ${variantId}`,
+    //     );
+    //   return option;
+    // });
   }
 }
