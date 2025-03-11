@@ -1,7 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { AddToCartDto } from 'src/modules/cart/dtos/add-to-cart.dto';
+import { UpdateItemCartDto } from 'src/modules/cart/dtos/update-item-cart.dto';
 
 @Injectable()
 export class RedisService {
@@ -18,7 +19,7 @@ export class RedisService {
     const { quantity, variantId, optionId, shopId, productId } = addToCart;
     const key = `cart:${userId}:${shopId}`;
     const itemKey = `${productId}:${variantId}:${optionId}`;
-    const cart = await this.getCart(userId);
+    const cart = await this.redis.hget(key, itemKey);
     if (cart) {
       await this.increaseQuantity(key, itemKey, quantity);
     } else {
@@ -75,5 +76,26 @@ export class RedisService {
     const key = `cart:${userId}:${shopId}`;
     const itemKey = `${productId}:${variantId}:${optionId}`;
     await this.redis.hdel(key, itemKey);
+  }
+  async updateItemCart(updateItemCart: UpdateItemCartDto): Promise<void> {
+    const {
+      newOptionId,
+      newVariantId,
+      oldOptionId,
+      oldVariantId,
+      shopId,
+      productId,
+      userId,
+    } = updateItemCart;
+    console.log(updateItemCart);
+    const key = `cart:${userId}:${shopId}`;
+    const itemKey = `${productId}:${oldVariantId}:${oldOptionId}`;
+    const newItemKey = `${productId}:${newVariantId}:${newOptionId}`;
+    const oldItemData = await this.redis.hget(key, itemKey);
+    if (!oldItemData) {
+      throw new BadRequestException('Item not found in cart');
+    }
+    await this.redis.hdel(key, itemKey);
+    await this.redis.hset(key, newItemKey, oldItemData);
   }
 }
