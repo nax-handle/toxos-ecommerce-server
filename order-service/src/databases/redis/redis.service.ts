@@ -14,12 +14,8 @@ export class RedisService {
     await this.redis.hset(key, itemKey, quantity);
     await this.redis.expire(key, expiration);
   }
-  async addToCart(
-    userId: string,
-    productId: string,
-    addToCart: AddToCartDto,
-  ): Promise<void> {
-    const { quantity, variantId, optionId, shopId } = addToCart;
+  async addToCart(userId: string, addToCart: AddToCartDto): Promise<void> {
+    const { quantity, variantId, optionId, shopId, productId } = addToCart;
     const key = `cart:${userId}:${shopId}`;
     const itemKey = `${productId}:${variantId}:${optionId}`;
     const cart = await this.getCart(userId);
@@ -43,7 +39,6 @@ export class RedisService {
     if (!results) {
       return { productIds: [], allCartItems: {} };
     }
-    console.log(results);
     const productIds: Set<string> = new Set();
     const allCartItems: Record<string, any[]> = {};
     cartKeys.forEach((cartKey, index) => {
@@ -75,7 +70,10 @@ export class RedisService {
     await this.redis.hincrby(key, itemKey, quantity);
   }
 
-  async removeFromCart(userId: string, productId: string): Promise<void> {
-    await this.redis.hdel(`cart:${userId}`, productId);
+  async removeFromCart(addToCart: AddToCartDto): Promise<void> {
+    const { variantId, optionId, shopId, productId, userId } = addToCart;
+    const key = `cart:${userId}:${shopId}`;
+    const itemKey = `${productId}:${variantId}:${optionId}`;
+    await this.redis.hdel(key, itemKey);
   }
 }

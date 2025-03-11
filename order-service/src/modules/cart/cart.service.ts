@@ -20,8 +20,8 @@ export class CartService implements OnModuleInit {
     this.productService =
       this.client.getService<ProductService>('ProductService');
   }
-  async addToCart(userId: string, addToCart: AddToCartDto, productId: string) {
-    await this.redisService.addToCart(userId, productId, addToCart);
+  async addToCart(userId: string, addToCart: AddToCartDto): Promise<any> {
+    await this.redisService.addToCart(userId, addToCart);
     return this.getCart(userId);
   }
   async getShopDummy() {
@@ -65,38 +65,24 @@ export class CartService implements OnModuleInit {
 
     const shopList = shopIds.map((shopId) => ({
       ...(shopMap.get(shopId) || {}),
-      products: allCartItems[shopId]
-        .map((cartItem) => {
-          const product = productMap.get(cartItem.productId);
-          if (!product) return null;
-          return {
-            ...product,
-            shopId,
-            quantity: cartItem.quantity,
-            variantId: cartItem.variantId,
-            optionId: cartItem.optionId,
-          };
-        })
+      products: allCartItems[shopId].map((cartItem) => {
+        const product = productMap.get(cartItem.productId);
+        if (!product) return null;
+        return {
+          ...product,
+          shopId,
+          quantity: cartItem.quantity,
+          variantId: cartItem.variantId,
+          optionId: cartItem.optionId,
+        };
+      }),
     }));
 
     console.log(shopList);
     return shopList;
   }
 
-  async clearCart(userId: string) {
-    // await this.redisService.deleteCart(userId);
-    return { items: [], total: 0 };
-  }
-  async updateCartItemQuantity(
-    userId: string,
-    productId: string,
-    quantity: number,
-  ) {
-    return this.getCart(userId);
-  }
-
-  async removeFromCart(userId: string, productId: string) {
-    await this.redisService.removeFromCart(userId, productId);
-    return this.getCart(userId);
+  async removeFromCart(removeFromCart: AddToCartDto): Promise<void> {
+    await this.redisService.removeFromCart(removeFromCart);
   }
 }

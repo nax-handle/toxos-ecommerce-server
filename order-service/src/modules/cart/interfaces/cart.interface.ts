@@ -11,14 +11,3 @@ export interface Cart {
   total: number;
   discountedTotal?: number;
 }
-
-export interface Voucher {
-  code: string;
-  type: 'PERCENTAGE' | 'FIXED' | 'BUY_X_GET_Y';
-  value: number;
-  minPurchase?: number;
-  maxDiscount?: number;
-  startDate: Date;
-  endDate: Date;
-  isActive: boolean;
-}

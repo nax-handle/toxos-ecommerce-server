@@ -1,4 +1,5 @@
 export class AddToCartDto {
+  userId: String;
   productId: string;
   optionId?: string;
   variantId?: string;
