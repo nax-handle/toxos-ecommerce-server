@@ -50,8 +50,8 @@ export class Product {
   @Prop({ default: false })
   hasVariant: boolean;
 
-  @Prop({ index: true })
-  shopId: string;
+  @Prop({ type: Types.ObjectId, ref: 'Shop' })
+  shop: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, index: true, ref: 'Category' })
   category: Types.ObjectId;
@@ -59,8 +59,8 @@ export class Product {
   @Prop({ type: Types.ObjectId, index: true, ref: 'Subcategory' })
   subcategory: Types.ObjectId;
 
-  @Prop({ type: Object })
-  attributes: Record<string, string>;
+  @Prop({ type: Array, default: [] })
+  attributes: [{ name: string; value: string }];
 
   @Prop([ProductVariantSchema])
   variants: ProductVariant[];

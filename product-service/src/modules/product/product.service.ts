@@ -1,8 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateProductDto, ProductVariantDto } from './dto/create-product.dto';
-import { MensFashionFactory } from './factories/mens-fashtion/mens-fashion.factory';
-import { Category } from './factories/category';
-import { ToyFactory } from './factories/toy/toy.factory';
 import { CategoryService } from '../category/category.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from './schemas/product.schema';
@@ -11,27 +8,34 @@ import { getSlug } from 'src/utils/slugify';
 import { ObjectId } from 'src/utils/object-id';
 import { randomString } from 'src/utils/random-string';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { GetProductDto } from './dto/get-products.dto';
+import { ProductRepository } from './repositories/product.repository';
+import { PaginatedProductResponse } from './dto/paginated-product-response.dto';
+import { GetProductsOfShopDto } from './dto/get-products-of-shop.dto';
+import { DeleteProductDto } from './dto/delete-product.dtot';
+import { PRODUCT_STATUS } from 'src/common/constants/product-status';
 
 @Injectable()
 export class ProductService {
-  private readonly productFactory: Record<string, Category> = {
-    mens: new MensFashionFactory(),
-    toy: new ToyFactory(),
-  };
+  // private readonly productFactory: Record<string, Category> = {
+  //   mens: new MensFashionFactory(),
+  //   toy: new ToyFactory(),
+  // };
   constructor(
     private readonly categoryService: CategoryService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly productRepository: ProductRepository,
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
   ) {}
   async createProduct(createProductDto: CreateProductDto): Promise<void> {
     const { subcategoryId, title, files, variants } = createProductDto;
     const subcategory =
       await this.categoryService.findSubCategory(subcategoryId);
-    const categoryFactory = this.productFactory[subcategory.category.type];
-    const product = categoryFactory.createProduct(
-      subcategory.type,
-      createProductDto,
-    );
+    // const categoryFactory = this.productFactory[subcategory.category.type];
+    // const product = categoryFactory.createProduct(
+    //   subcategory.type,
+    //   createProductDto,
+    // );
     const [uploadedProductImages, uploadedVariantImages] = await Promise.all([
       this.cloudinaryService.uploadMultipleFiles(files.product_images || []),
       this.cloudinaryService.uploadMultipleFiles(files.variant_images || []),
@@ -44,11 +48,11 @@ export class ProductService {
       );
     }
     await this.productModel.create({
+      ...createProductDto,
       thumbnail: uploadedProductImages[0],
       images: uploadedProductImages,
       category: subcategory.category._id,
       subcategory: subcategory._id,
-      ...product.getAttributes(),
       slug: getSlug(title) + randomString(4),
       variants: newVariants,
     });
@@ -68,7 +72,7 @@ export class ProductService {
     return Promise.resolve(newVariants);
   }
   async getBySlug(slug: string): Promise<Product> {
-    const product = await this.productModel.findOne({ slug });
+    const product = await this.productRepository.findProductBySlug(slug);
     if (!product) {
       throw new BadRequestException('Product not found');
     }
@@ -94,32 +98,41 @@ export class ProductService {
     if (!products) throw new BadRequestException('Product not found');
     return products;
   }
-  async findProductsWithVariantsAndOptions(
-    data: { productId: string; variantId?: string; optionId?: string }[],
-  ) {
-    // const productIds = data.map(({ productId }) => ObjectId(productId));
-    // const products = await this.productModel
-    //   .find({ _id: { $in: productIds } })
-    //   .lean();
-    // const productMap = new Map(products.map((p) => [p._id.toString(), p]));
-    // return data.map(({ productId, variantId, optionId }) => {
-    //   const product = productMap.get(productId);
-    //   if (!product) throw new Error(`Product with ID ${productId} not found`);
-    //   if (!variantId) return product;
-    //   const variant = product.variants.find(
-    //     (v) => v._id.toString() === variantId,
-    //   );
-    //   if (!variant)
-    //     throw new Error(
-    //       `Variant with ID ${variantId} not found in product ${productId}`,
-    //     );
-    //   if (!optionId) return variant;
-    //   const option = variant.options.find((o) => o._id.toString() === optionId);
-    //   if (!option)
-    //     throw new Error(
-    //       `Option with ID ${optionId} not found in variant ${variantId}`,
-    //     );
-    //   return option;
-    // });
+  async getPaginateProducts(
+    getProductDto: GetProductDto,
+  ): Promise<PaginatedProductResponse> {
+    const [products, productCount] = await Promise.all([
+      this.productRepository.getProducts(getProductDto),
+      this.productModel.countDocuments().exec(),
+    ]);
+    return {
+      total: productCount,
+      totalPage: Math.ceil(productCount / getProductDto.size),
+      page: getProductDto.page,
+      products,
+    };
+  }
+  async getProductsOfShop(
+    getProductDto: GetProductsOfShopDto,
+  ): Promise<PaginatedProductResponse> {
+    const [products, productCount] = await Promise.all([
+      this.productRepository.getProductsOfShop(getProductDto),
+      this.productRepository.countProductsOfShop(getProductDto.shopId),
+    ]);
+    return {
+      total: productCount,
+      totalPage: Math.ceil(productCount / getProductDto.size),
+      page: getProductDto.page,
+      products,
+    };
+  }
+  async deleteProduct(deleteProduct: DeleteProductDto): Promise<void> {
+    const updatedProduct = await this.productRepository.deleteProduct(
+      deleteProduct,
+      PRODUCT_STATUS.INACTIVE,
+    );
+    if (updatedProduct.modifiedCount === 0) {
+      throw new BadRequestException('Product not found');
+    }
   }
 }

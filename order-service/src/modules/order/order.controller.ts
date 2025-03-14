@@ -5,7 +5,10 @@ import { OrderService } from './order.service';
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
   @Post()
-  create() {
-    return this.orderService.calculateLoyaltyPoints();
+  async create() {
+    return {
+      message: 'success',
+      point: await this.orderService.calculateLoyaltyPoints(),
+    };
   }
 }

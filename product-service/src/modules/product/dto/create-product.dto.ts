@@ -33,14 +33,14 @@ export class CreateProductDto {
 
   @IsNotEmpty()
   @IsString()
-  shopId: string;
+  shop: Types.ObjectId;
 
   @IsString()
   subcategoryId: string;
 
   @IsOptional()
   @IsObject()
-  attributes?: Record<string, any>;
+  attributes?: { name: string; value: string }[];
 
   @IsOptional()
   @IsArray()

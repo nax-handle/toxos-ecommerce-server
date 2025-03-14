@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package shop;
+
+service ShopService {
+  rpc FindShops (FindShopsRequest) returns (FindShopsResponse);
+}
+
+message FindShopRequest {
+  string email = 1;
+  string password = 2;
+  string type = 3;
+  string code = 4;
+
+}
+
+message FindShopsRequest {
+  FindShopRequest item = 1
+}
+
+message FindShopsResponse {
+  string token = 1;
+  string data = 2;
+}

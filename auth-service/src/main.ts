@@ -8,19 +8,19 @@ console.log(port);
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   await app.listen(port || 3001);
-  const grpcApp = await NestFactory.createMicroservice<MicroserviceOptions>(
-    AppModule,
-    {
-      transport: Transport.GRPC,
-      options: {
-        package: 'auth',
-        protoPath: '../proto/auth.proto',
-        url: '0.0.0.0:50051',
-      },
-    },
-  );
+  // const grpcApp = await NestFactory.createMicroservice<MicroserviceOptions>(
+  //   AppModule,
+  //   {
+  //     transport: Transport.GRPC,
+  //     options: {
+  //       package: 'auth',
+  //       protoPath: '../proto/auth.proto',
+  //       url: '0.0.0.0:50051',
+  //     },
+  //   },
+  // );
 
-  await grpcApp.listen();
+  // await grpcApp.listen();
 }
 
 bootstrap();

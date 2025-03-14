@@ -1,11 +1,11 @@
-import { MensFashion } from './products/mensfashion';
-import { Toy } from './products/toy';
+import { Order } from '../entities/order.entity';
 
-export interface Product {
-  accept(visitor: LoyaltyPointsVisitor): number;
+export interface CashBack {
+  accept(visitor: CashBackVisitor): number;
 }
 
-export interface LoyaltyPointsVisitor {
-  visitMensFashion(product: MensFashion): number;
-  visitToy(product: Toy): number;
+export interface CashBackVisitor {
+  visitCategories(order: Order): number;
+  visitPayment(order: Order): number;
+  visitDefault(order: Order): number;
 }

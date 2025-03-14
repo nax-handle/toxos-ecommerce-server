@@ -5,6 +5,7 @@ import { ProductModule } from './modules/product/product.module';
 import { MongoDBModule } from './databases/mongodb';
 import { ConfigModule } from '@nestjs/config';
 import { CategoryModule } from './modules/category/category.module';
+import { ShopModule } from './modules/shop/shop.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { CategoryModule } from './modules/category/category.module';
     ProductModule,
     MongoDBModule,
     CategoryModule,
+    ShopModule,
   ],
 
   controllers: [AppController],
