@@ -1,8 +1,12 @@
+import { OrderItem } from 'src/modules/order/entities/order.entity';
 import {
   DefaultCashBackStrategy,
   MensFashionCashBackStrategy,
 } from './category.strategy';
-import { CashBackStrategy } from './strategy';
+
+export interface CashBackStrategy {
+  calculate(orderItem: OrderItem): number;
+}
 
 export class CategoryStrategyFactory {
   private static strategies: Map<string, CashBackStrategy> = new Map([

@@ -34,7 +34,7 @@ export class OrderService {
           totalPrice: 80000,
         },
       ],
-      paymentMethod: 'pointer-wallet',
+      paymentMethod: 'paypal',
     };
   }
   calculateLoyaltyPoints() {

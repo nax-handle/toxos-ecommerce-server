@@ -1,7 +1,7 @@
 import { CashBackVisitor, CashBack } from './visitor.interface';
 // import { MensFashion } from './payments/mensfashion';
 import { Default } from './cashback/default';
-import { Payment } from './cashback/pointer-wallet';
+import { Payment } from './cashback/payment';
 import { Order } from '../entities/order.entity';
 import { Categories } from './cashback/categories';
 

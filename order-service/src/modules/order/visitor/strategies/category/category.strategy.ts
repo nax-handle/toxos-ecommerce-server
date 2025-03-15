@@ -1,6 +1,6 @@
-import { OrderItem } from '../../entities/order.entity';
-import { CashBackStrategy } from './strategy';
 import { CATEGORY_RATING } from 'src/constants/cashback-rating';
+import { CashBackStrategy } from './factory';
+import { OrderItem } from 'src/modules/order/entities/order.entity';
 
 export class MensFashionCashBackStrategy implements CashBackStrategy {
   calculate(product: OrderItem): number {
