@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package shop;
+
+service ShopService {
+  rpc FindMany (ShopsByIds) returns (ShopsResponse);
+}
+
+message ShopsByIds {
+  repeated string ids = 1;
+}
+
+message ShopResponse {
+  string _id = 1;
+  string name = 2;
+  string slug = 3;
+  string logo = 4;
+  string description = 5;
+  string phoneNumber = 6;
+  string address = 7;
+  string detailedAddress = 8;
+  string userId = 9;
+}
+
+message ShopsResponse {
+  repeated ShopResponse shops = 1;
+}

@@ -31,7 +31,7 @@ export class ProductController {
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'product_images', maxCount: 5 },
-      { name: 'variant_images', maxCount: 5 },
+      // { name: 'variant_images', maxCount: 5 },
     ]),
   )
   async create(
@@ -39,7 +39,7 @@ export class ProductController {
     @UploadedFiles()
     files: {
       product_images?: Express.Multer.File[];
-      variant_images?: Express.Multer.File[];
+      // variant_images?: Express.Multer.File[];
     },
     @Req() req: RequestWithShop,
   ): Promise<Response<string>> {

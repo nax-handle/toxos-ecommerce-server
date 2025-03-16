@@ -8,6 +8,7 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { ShopModule } from '../shop/shop.module';
 import { Shop, ShopSchema } from '../shop/schemas/shop.schema';
 import { ProductRepository } from './repositories/product.repository';
+import { ContextProduct } from './states/context.product.state';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
@@ -18,7 +19,7 @@ import { ProductRepository } from './repositories/product.repository';
     ShopModule,
   ],
   controllers: [ProductController],
-  providers: [ProductService, ProductRepository],
+  providers: [ProductService, ProductRepository, ContextProduct],
   exports: [ProductService],
 })
 export class ProductModule {}

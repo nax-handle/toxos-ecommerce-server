@@ -10,8 +10,8 @@ async function bootstrap() {
     {
       transport: Transport.GRPC,
       options: {
-        package: 'product',
-        protoPath: './src/proto/product.proto',
+        package: ['product', 'shop'],
+        protoPath: ['./src/proto/product.proto', './src/proto/shop.proto'],
         url: '0.0.0.0:50052',
       },
     },

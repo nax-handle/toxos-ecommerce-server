@@ -9,6 +9,7 @@ import { Shop, ShopDocument } from './schemas/shop.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { getSlug } from 'src/utils/slugify';
+import { ObjectId } from 'src/utils/object-id';
 
 @Injectable()
 export class ShopService {
@@ -38,6 +39,11 @@ export class ShopService {
     const shop = await this.shopModel.findOne({ slug });
     if (!shop) throw new NotFoundException('Shop not found');
     return shop;
+  }
+  async findMany(_ids: string[]): Promise<Shop[]> {
+    const objectIds = _ids.map((value) => ObjectId(value));
+    const shops = await this.shopModel.find({ _id: { $in: objectIds } });
+    return shops;
   }
   // async getShop(user: User): Promise<Shop> {}
 }

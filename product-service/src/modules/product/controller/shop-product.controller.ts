@@ -72,4 +72,9 @@ export class ProductController {
     });
     return response(data, 'success');
   }
+  @Post('add-to-cart')
+  addToCart() {
+    this.productService.addToCart();
+    return response('data', 'success');
+  }
 }

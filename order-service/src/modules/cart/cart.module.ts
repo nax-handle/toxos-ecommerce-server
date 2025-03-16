@@ -1,22 +1,22 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { join } from 'path';
+import { ConfigModule } from '@nestjs/config';
 import { CartService } from './cart.service';
 import { CartController } from './cart.controller';
 import { RedisModule } from 'src/databases/redis/redis.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+
 @Module({
   imports: [
     ConfigModule,
     RedisModule,
     ClientsModule.register([
       {
-        name: 'PRODUCT_SERVICE',
+        name: 'GRPC_SERVICE',
         transport: Transport.GRPC,
         options: {
           url: '0.0.0.0:50052',
-          package: 'product',
-          protoPath: 'src/protos/product.proto',
+          package: ['product', 'shop'],
+          protoPath: ['src/proto/product.proto', 'src/proto/shop.proto'],
         },
       },
     ]),

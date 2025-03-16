@@ -14,6 +14,7 @@ import { Request } from 'express';
 import { ShopGuard } from 'src/common/guards/shop.guard';
 import { Shop } from './schemas/shop.schema';
 import { response, Response } from 'src/utils/response';
+import { GrpcMethod } from '@nestjs/microservices';
 
 interface RequestWithShop extends Request {
   shop: Shop;
@@ -47,9 +48,9 @@ export class ShopController {
     const data = await this.shopService.getShopBySlug(slug);
     return response(data, 'success');
   }
-  // @Get()
-  // @UseGuards(ShopGuard)
-  // getShop(@Req() req: Request) {
-  //   return req['shop'] as Shop;
-  // }
+  @GrpcMethod('ShopService', 'FindMany')
+  async findMany(data: { ids: string[] }) {
+    const items = await this.shopService.findMany(data.ids);
+    return { shops: items };
+  }
 }

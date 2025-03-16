@@ -8,61 +8,51 @@ interface ProductService {
   FindOne(data: { id: string }): Observable<any>;
   FindMany(data: { ids: string[] }): Observable<any>;
 }
-
+interface ShopService {
+  FindMany(data: { ids: string[] }): Observable<any>;
+}
 @Injectable()
 export class CartService implements OnModuleInit {
   private productService: ProductService;
+  private shopService: ShopService;
+
   constructor(
-    @Inject('PRODUCT_SERVICE') private client: ClientGrpc,
+    @Inject('GRPC_SERVICE') private client: ClientGrpc,
     private readonly redisService: RedisService,
   ) {}
   onModuleInit() {
     this.productService =
       this.client.getService<ProductService>('ProductService');
+    this.shopService = this.client.getService<ShopService>('ShopService');
   }
-  async addToCart(userId: string, addToCart: AddToCartDto): Promise<any> {
-    await this.redisService.addToCart(userId, addToCart);
-    return this.getCart(userId);
-  }
-  async getShopDummy() {
-    return {
-      items: [
-        {
-          _id: '123',
-          name: 'Shop 1',
-        },
-        {
-          _id: '1234',
-          name: 'Shop 2',
-        },
-      ],
-    };
+  async addToCart(addToCart: AddToCartDto): Promise<any> {
+    await this.redisService.addToCart(addToCart);
   }
   async getCart(userId: string): Promise<any> {
     const cartItems = await this.redisService.getCart(userId);
     if (!cartItems) return [];
-
     const { productIds, allCartItems } = cartItems;
+    console.log(allCartItems);
     const shopIds = Object.keys(allCartItems);
-
+    console.log(productIds);
+    console.log(shopIds);
     const [productsResponse, shopsResponse] = await Promise.all([
       productIds.length
         ? this.productService.FindMany({ ids: productIds }).toPromise()
         : { items: [] },
-      this.getShopDummy(),
-      // shopIds.length
-      //   ? this.shopService.FindMany({ ids: shopIds }).toPromise()
-      //   : { items: [] },
+      shopIds.length
+        ? this.shopService.FindMany({ ids: shopIds }).toPromise()
+        : { items: [] },
     ]);
-    console.log(productsResponse);
-    const productMap = new Map(
-      productsResponse.items.map((product) => [product._id, product]),
-    );
-
-    const shopMap = new Map(
-      shopsResponse.items.map((shop) => [shop._id, { ...shop, products: [] }]),
-    );
-
+    const [productMap, shopMap] = await Promise.all([
+      new Map(productsResponse.items.map((product) => [product._id, product])),
+      new Map(
+        shopsResponse.shops.map((shop) => [
+          shop._id,
+          { ...shop, products: [] },
+        ]),
+      ),
+    ]);
     const shopList = shopIds.map((shopId) => ({
       ...(shopMap.get(shopId) || {}),
       products: allCartItems[shopId].map((cartItem) => {
@@ -73,12 +63,9 @@ export class CartService implements OnModuleInit {
           shopId,
           quantity: cartItem.quantity,
           variantId: cartItem.variantId,
-          optionId: cartItem.optionId,
         };
       }),
     }));
-
-    console.log(shopList);
     return shopList;
   }
 

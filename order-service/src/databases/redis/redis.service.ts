@@ -15,10 +15,10 @@ export class RedisService {
     await this.redis.hset(key, itemKey, quantity);
     await this.redis.expire(key, expiration);
   }
-  async addToCart(userId: string, addToCart: AddToCartDto): Promise<void> {
-    const { quantity, variantId, optionId, shopId, productId } = addToCart;
+  async addToCart(addToCart: AddToCartDto): Promise<void> {
+    const { quantity, variantId, shopId, productId, userId } = addToCart;
     const key = `cart:${userId}:${shopId}`;
-    const itemKey = `${productId}:${variantId}:${optionId}`;
+    const itemKey = `${productId}:${variantId}`;
     const cart = await this.redis.hget(key, itemKey);
     if (cart) {
       await this.increaseQuantity(key, itemKey, quantity);
@@ -46,12 +46,11 @@ export class RedisService {
       const shopId = cartKey.split(':')[2];
       const cartItems = results[index][1] as { [key: string]: string };
       allCartItems[shopId] = Object.entries(cartItems).map(([key, value]) => {
-        const [productId, variantId, optionId] = key.split(':');
+        const [productId, variantId] = key.split(':');
         productIds.add(productId);
         return {
           productId,
           variantId,
-          optionId,
           quantity: parseInt(value, 10),
         };
       });
@@ -72,25 +71,17 @@ export class RedisService {
   }
 
   async removeFromCart(addToCart: AddToCartDto): Promise<void> {
-    const { variantId, optionId, shopId, productId, userId } = addToCart;
+    const { variantId, shopId, productId, userId } = addToCart;
     const key = `cart:${userId}:${shopId}`;
-    const itemKey = `${productId}:${variantId}:${optionId}`;
+    const itemKey = `${productId}:${variantId}`;
     await this.redis.hdel(key, itemKey);
   }
   async updateItemCart(updateItemCart: UpdateItemCartDto): Promise<void> {
-    const {
-      newOptionId,
-      newVariantId,
-      oldOptionId,
-      oldVariantId,
-      shopId,
-      productId,
-      userId,
-    } = updateItemCart;
-    console.log(updateItemCart);
+    const { newVariantId, oldVariantId, shopId, productId, userId } =
+      updateItemCart;
     const key = `cart:${userId}:${shopId}`;
-    const itemKey = `${productId}:${oldVariantId}:${oldOptionId}`;
-    const newItemKey = `${productId}:${newVariantId}:${newOptionId}`;
+    const itemKey = `${productId}:${oldVariantId}`;
+    const newItemKey = `${productId}:${newVariantId}`;
     const oldItemData = await this.redis.hget(key, itemKey);
     if (!oldItemData) {
       throw new BadRequestException('Item not found in cart');

@@ -66,4 +66,12 @@ export class ProductRepository {
       },
     );
   }
+  async updateProduct(
+    updateProduct: DeleteProductDto,
+  ): Promise<UpdateWriteOpResult> {
+    return await this.productModel.updateOne({
+      _id: ObjectId(updateProduct.productId),
+      shop: updateProduct.shopId,
+    });
+  }
 }

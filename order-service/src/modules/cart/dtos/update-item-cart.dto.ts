@@ -15,16 +15,8 @@ export class UpdateItemCartDto {
 
   @IsOptional()
   @IsString()
-  oldOptionId?: string;
-
-  @IsOptional()
-  @IsString()
   oldVariantId?: string;
-
-  @IsOptional()
-  @IsString()
-  newOptionId?: string;
-
+  
   @IsOptional()
   @IsString()
   newVariantId?: string;

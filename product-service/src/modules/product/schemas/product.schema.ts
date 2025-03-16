@@ -47,9 +47,6 @@ export class Product {
   @Prop()
   origin: string;
 
-  @Prop({ default: false })
-  hasVariant: boolean;
-
   @Prop({ type: Types.ObjectId, ref: 'Shop' })
   shop: Types.ObjectId;
 

@@ -8,6 +8,7 @@ import { OrderModule } from './modules/order/order.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+   
     CartModule,
     OrderModule,
   ],

@@ -13,7 +13,7 @@ import { Types } from 'mongoose';
 export class CreateProductDto {
   files: {
     product_images?: Express.Multer.File[];
-    variant_images?: Express.Multer.File[];
+    // variant_images?: Express.Multer.File[];
   };
   @IsNotEmpty()
   @IsString()
@@ -22,6 +22,14 @@ export class CreateProductDto {
   @IsNotEmpty()
   @IsString()
   description: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  price: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  discount: string;
 
   @IsNotEmpty()
   @IsString()
@@ -49,24 +57,6 @@ export class CreateProductDto {
   variants: ProductVariantDto[];
 }
 
-export class VariantOptionDto {
-  @IsNotEmpty()
-  @IsString()
-  title: string;
-
-  @IsNotEmpty()
-  @IsString()
-  name: string;
-
-  @IsNotEmpty()
-  @IsNumber()
-  price: number;
-
-  @IsNotEmpty()
-  @IsNumber()
-  stock: number;
-}
-
 export class ProductVariantDto {
   @IsNotEmpty()
   @IsString()
@@ -76,10 +66,6 @@ export class ProductVariantDto {
   @IsString()
   name: string;
 
-  @IsNotEmpty()
-  @IsString()
-  image: string;
-
   @IsOptional()
   @IsNumber()
   price?: number;
@@ -87,12 +73,4 @@ export class ProductVariantDto {
   @IsOptional()
   @IsNumber()
   stock?: number;
-
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => VariantOptionDto)
-  options: VariantOptionDto[];
-
-  product: Types.ObjectId;
 }
