@@ -8,7 +8,6 @@ import { EmailService } from 'src/modules/email/email.service';
 import { VerifyOtpDto } from '../dto/verify-otp.dto';
 import { TokenService } from './token.service';
 import { TokenDto } from '../dto/token.dto';
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -18,7 +17,7 @@ export class AuthService {
     private readonly emailService: EmailService,
     private readonly tokenService: TokenService,
   ) {}
-  login(loginDto: LoginDto): Promise<string> {
+  login(loginDto: LoginDto): Promise<TokenDto> {
     const strategy = this.loginStrategyFactory.getStrategy(loginDto.type);
     return strategy.login(loginDto);
   }
@@ -26,7 +25,7 @@ export class AuthService {
     const { email, password } = register;
     await this.userService.checkExistsAndThrow(email);
     const otp = await this.otpService.generateOtp(email, password);
-    await this.emailService.sendEmail(email, otp, '[Curxor] Verify your email');
+    await this.emailService.sendEmail(email, otp, '[Toxos] Verify your email');
   }
   async verify(verify: VerifyOtpDto): Promise<TokenDto> {
     const { email } = verify;

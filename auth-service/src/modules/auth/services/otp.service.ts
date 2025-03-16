@@ -18,6 +18,7 @@ export class OtpService {
       }),
       60 * 5,
     );
+    console.log(otp);
     return otp;
   }
   async verifyOtp({ email, otp }: VerifyOtpDto): Promise<string> {

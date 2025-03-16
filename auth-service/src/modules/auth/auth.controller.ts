@@ -12,19 +12,24 @@ import { Roles } from 'src/common/decorators/role.decorator';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Get()
-  @Roles('admin', 'user')
+  @Roles('user')
   // @UseGuards(AuthGuard)
-  auth(@Req() req: Request, @Res() res: Response) {
+  authGateway(@Req() req: Request, @Res() res: Response) {
     const user = req['user'] as User;
-    console.log(user.id);
     res.setHeader('X-User-ID', user.id);
     return res.status(200).send();
   }
+  @Get('user')
+  @Roles('user')
+  authUser(@Req() req: Request) {
+    const user = req['user'] as User;
+    return user;
+  }
   @Post('login')
-  loginUser(@Body() loginDto: LoginDto) {
-    const token = this.authService.login(loginDto);
+  async loginUser(@Body() loginDto: LoginDto) {
+    const tokens = await this.authService.login(loginDto);
     return {
-      token: token,
+      ...tokens,
       message: 'User logged in successfully',
       status: 200,
     };

@@ -8,12 +8,14 @@ export class TokenService {
   constructor(private readonly jwtService: JwtService) {}
 
   async generateToken(payload: Record<string, any>): Promise<TokenDto> {
-    const accessToken = await this.jwtService.signAsync(payload, {
-      secret: 'access',
-    });
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: 'refresh',
-    });
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: 'access',
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: 'refresh',
+      }),
+    ]);
     return { accessToken, refreshToken };
   }
 
