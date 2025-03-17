@@ -3,6 +3,7 @@ import { ClientGrpc } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 import { RedisService } from 'src/databases/redis/redis.service';
 import { AddToCartDto } from './dtos/add-to-cart.dto';
+import { UpdateItemCartDto } from './dtos/update-item-cart.dto';
 
 interface ProductService {
   FindOne(data: { id: string }): Observable<any>;
@@ -26,16 +27,14 @@ export class CartService implements OnModuleInit {
     this.shopService = this.client.getService<ShopService>('ShopService');
   }
   async addToCart(addToCart: AddToCartDto): Promise<any> {
-    await this.redisService.addToCart(addToCart);
+    return await this.redisService.addToCart(addToCart);
   }
   async getCart(userId: string): Promise<any> {
     const cartItems = await this.redisService.getCart(userId);
-    if (!cartItems) return [];
+    if (!cartItems.allCartItems || cartItems.productIds?.length === 0)
+      return [];
     const { productIds, allCartItems } = cartItems;
-    console.log(allCartItems);
     const shopIds = Object.keys(allCartItems);
-    console.log(productIds);
-    console.log(shopIds);
     const [productsResponse, shopsResponse] = await Promise.all([
       productIds.length
         ? this.productService.FindMany({ ids: productIds }).toPromise()
@@ -72,7 +71,7 @@ export class CartService implements OnModuleInit {
   async removeFromCart(removeFromCart: AddToCartDto): Promise<void> {
     await this.redisService.removeFromCart(removeFromCart);
   }
-  async updateItemCart(removeFromCart: AddToCartDto): Promise<void> {
-    await this.redisService.updateItemCart(removeFromCart);
+  async updateItemCart(updateItemCart: UpdateItemCartDto): Promise<void> {
+    await this.redisService.updateItemCart(updateItemCart);
   }
 }

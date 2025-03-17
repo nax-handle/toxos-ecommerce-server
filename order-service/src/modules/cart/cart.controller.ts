@@ -10,31 +10,33 @@ import {
 import { CartService } from './cart.service';
 import { AddToCartDto } from './dtos/add-to-cart.dto';
 import { Request } from 'express';
+import { UpdateItemCartDto } from './dtos/update-item-cart.dto';
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
   // userId = req.headers['x-user-id'];
-  @Post()
+  @Post('add-to-cart')
   async addToCart(
     @Body() body: AddToCartDto,
     @Req() req: Request,
-  ): Promise<void> {
+  ): Promise<any> {
     const userId = req.headers['x-user-id'] as string;
-    return this.cartService.addToCart({ ...body, userId });
+    await this.cartService.addToCart({ ...body, userId });
+    return { message: 'Success' };
   }
 
-  @Get()
+  @Get('get-cart')
   async getCart(@Req() req: Request): Promise<void> {
     const userId = req.headers['x-user-id'] as string;
     return this.cartService.getCart(userId);
   }
 
-  @Delete()
+  @Delete('remove')
   async removeFromCart(@Body() body: AddToCartDto): Promise<void> {
     return this.cartService.removeFromCart(body);
   }
-  @Patch()
-  async updateItemCart(@Body() body: AddToCartDto): Promise<void> {
+  @Patch('update-item')
+  async updateItemCart(@Body() body: UpdateItemCartDto): Promise<void> {
     return this.cartService.updateItemCart(body);
   }
 }

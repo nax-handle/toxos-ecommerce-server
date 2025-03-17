@@ -1,26 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
-const configService = new ConfigService();
-const port = configService.get<string>('PORT') || 3001;
-console.log(port);
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(port || 3001);
-  // const grpcApp = await NestFactory.createMicroservice<MicroserviceOptions>(
-  //   AppModule,
-  //   {
-  //     transport: Transport.GRPC,
-  //     options: {
-  //       package: 'auth',
-  //       protoPath: '../proto/auth.proto',
-  //       url: '0.0.0.0:50051',
-  //     },
-  //   },
-  // );
 
-  // await grpcApp.listen();
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+
+  const configService = app.get(ConfigService);
+  const port = configService.get<string>('PORT') || 3001;
+
+  await app.listen(port);
 }
 
 bootstrap();

@@ -19,7 +19,6 @@ export class EmailLoginStrategy implements ILoginStrategy {
     if (!validPassword)
       throw new BadRequestException('Tài khoản hoặc mật khẩu sai');
     const tokens = await this.tokenService.generateToken({ ...user });
-    console.log(tokens);
-    return tokens;
+    return { user, ...tokens };
   }
 }

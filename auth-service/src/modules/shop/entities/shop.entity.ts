@@ -10,11 +10,12 @@ import {
   BeforeInsert,
   JoinColumn,
 } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 
 @Entity('Shop')
 export class Shop {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
   @Column({ nullable: false })
   name: string;
   @Column({ unique: true })
@@ -39,6 +40,12 @@ export class Shop {
   createdAt: Date;
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
+
+  @BeforeInsert()
+  generateId(): void {
+    this.id = uuidv4();
+  }
+
   @BeforeInsert()
   createSlug() {
     if (!this.slug) {

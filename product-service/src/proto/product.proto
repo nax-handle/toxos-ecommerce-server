@@ -23,34 +23,29 @@ message ProductResponse {
   string title = 3;
   double price = 4;
   string status = 5;
-  double stock = 6;
-  string description = 7;
-  string thumbnail = 8;
-  int32 soldCount = 9;
-  string brand = 10;
-  string origin = 11;
-  string shopId = 12;
-  bool hasVariant = 13;
-  repeated Variant variants = 14;
+  int32 discount = 6;
+  string variantName = 7;
+  string optionName = 8;
+  double stock = 9;
+  string description = 10;
+  string thumbnail = 11;
+  int32 soldCount = 12;
+  string brand = 13;
+  string origin = 14;
+  string shopId = 15;
+  bool hasVariant = 16;
+  repeated Variant variants = 17;
 }
+
 
 message Variant {
   string _id = 1;
   string name = 2;
-  string image = 3;
-  double price = 4;
-  double stock = 5;
-  string sku = 6;
-  bool hasOption = 7;
-  repeated Option options = 8;
-}
-
-message Option {
-  string _id = 1;
-  string name = 2;
-  int32 stock = 3;
-  string sku = 4;
-
+  string value = 3;
+  string image = 4;
+  double price = 5;
+  double stock = 6;
+  string sku = 7;
 }
 
 message ProductsResponse {

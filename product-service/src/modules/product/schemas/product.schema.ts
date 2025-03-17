@@ -47,6 +47,12 @@ export class Product {
   @Prop()
   origin: string;
 
+  @Prop({ required: true })
+  variantName: string;
+
+  @Prop({ required: true })
+  optionName: string;
+
   @Prop({ type: Types.ObjectId, ref: 'Shop' })
   shop: Types.ObjectId;
 

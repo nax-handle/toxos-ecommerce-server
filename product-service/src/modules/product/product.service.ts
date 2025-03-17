@@ -34,26 +34,10 @@ export class ProductService {
     const { subcategoryId, title, files } = createProductDto;
     const subcategory =
       await this.categoryService.findSubCategory(subcategoryId);
-    // const categoryFactory = this.productFactory[subcategory.category.type];
-    // const product = categoryFactory.createProduct(
-    //   subcategory.type,
-    //   createProductDto,
-    // );
-
     const uploadedProductImages =
       await this.cloudinaryService.uploadMultipleFiles(
         files.product_images || [],
       );
-    // const [uploadedProductImages, uploadedVariantImages] = await Promise.all([
-    //   this.cloudinaryService.uploadMultipleFiles(files.variant_images || []),
-    // ]);
-    // let newVariants: ProductVariantDto[] = [];
-    // if (variants) {
-    //   newVariants = await this.mapVariantWithImages(
-    //     variants,
-    //     uploadedVariantImages,
-    //   );
-    // }
     await this.productModel.create({
       ...createProductDto,
       thumbnail: uploadedProductImages[0],
@@ -61,7 +45,6 @@ export class ProductService {
       category: subcategory.category._id,
       subcategory: subcategory._id,
       slug: getSlug(title) + randomString(4),
-      // variants: newVariants,
     });
   }
 

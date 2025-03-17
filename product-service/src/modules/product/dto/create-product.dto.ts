@@ -8,7 +8,6 @@ import {
   ValidateNested,
   IsObject,
 } from 'class-validator';
-import { Types } from 'mongoose';
 
 export class CreateProductDto {
   files: {
@@ -41,10 +40,18 @@ export class CreateProductDto {
 
   @IsNotEmpty()
   @IsString()
-  shop: Types.ObjectId;
+  shop: string;
 
   @IsString()
   subcategoryId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  variantName: string;
+
+  @IsNotEmpty()
+  @IsString()
+  optionName: string;
 
   @IsOptional()
   @IsObject()
@@ -60,11 +67,11 @@ export class CreateProductDto {
 export class ProductVariantDto {
   @IsNotEmpty()
   @IsString()
-  title: string;
+  name: string;
 
   @IsNotEmpty()
   @IsString()
-  name: string;
+  value: string;
 
   @IsOptional()
   @IsNumber()

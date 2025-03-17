@@ -1,8 +1,6 @@
 import { IsString, IsNotEmpty, IsOptional, IsInt, Min } from 'class-validator';
 
 export class AddToCartDto {
-  @IsString()
-  @IsNotEmpty()
   userId: string;
 
   @IsString()

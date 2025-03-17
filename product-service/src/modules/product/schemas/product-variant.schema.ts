@@ -9,9 +9,6 @@ export class ProductVariant {
   _id: Types.ObjectId;
 
   @Prop({ required: true })
-  title: string;
-
-  @Prop({ required: true })
   name: string;
 
   @Prop({ required: true })

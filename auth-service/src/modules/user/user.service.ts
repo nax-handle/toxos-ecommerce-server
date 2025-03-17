@@ -19,7 +19,7 @@ export class UserService {
   create(createUser: CreateUserDto) {
     return this.userRepository.save(createUser);
   }
-  async findUserById(id: number, msg: string): Promise<User> {
+  async findUserById(id: string, msg: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: id, active: true },
     });
