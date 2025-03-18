@@ -9,16 +9,17 @@ import {
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { ProductService } from './product.service';
-import { CreateProductDto } from './dto/create-product.dto';
+import { ProductService } from './services/product.service';
+import { CreateProductDto } from './dto/request/create-product.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { GrpcMethod } from '@nestjs/microservices';
 import { response, Response } from 'src/utils/response';
 import { Product } from './schemas/product.schema';
-import { GetProductDto } from './dto/get-products.dto';
-import { PaginatedProductResponse } from './dto/paginated-product-response.dto';
-import { GetProductsOfShopDto } from './dto/get-products-of-shop.dto';
+import { GetProductDto } from './dto/request/get-products.dto';
+import { GetProductsOfShopDto } from './dto/request/get-products-of-shop.dto';
 import { Request } from '@nestjs/common';
+import { CheckStockDto } from './dto/request/check-stock.dto';
+import { PaginatedProductResponse } from './dto/response/paginated-product-response.dto';
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
@@ -108,6 +109,11 @@ export class ProductController {
   @GrpcMethod('ProductService', 'FindMany')
   async findMany(data: { ids: string[] }) {
     const items = await this.productService.findMany(data.ids);
+    return { items: items };
+  }
+  @Post('test')
+  async checkStock(@Body() body: CheckStockDto[]) {
+    const items = await this.productService.checkStock(body);
     return { items: items };
   }
 }

@@ -1,4 +1,4 @@
-import { ProductService } from '../product.service';
+import { ProductService } from '../services/product.service';
 import { Product } from '../schemas/product.schema';
 import { StateProduct } from './product.state';
 import { OutOfStockState } from './state/out-of-stock.state';

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ProductService } from './product.service';
+import { ProductService } from './services/product.service';
 import { ProductController } from './product.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from './schemas/product.schema';
@@ -9,6 +9,7 @@ import { ShopModule } from '../shop/shop.module';
 import { Shop, ShopSchema } from '../shop/schemas/shop.schema';
 import { ProductRepository } from './repositories/product.repository';
 import { ContextProduct } from './states/context.product.state';
+import { InventoryService } from './services/inventory.service';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
@@ -19,7 +20,12 @@ import { ContextProduct } from './states/context.product.state';
     ShopModule,
   ],
   controllers: [ProductController],
-  providers: [ProductService, ProductRepository, ContextProduct],
+  providers: [
+    ProductService,
+    ProductRepository,
+    ContextProduct,
+    InventoryService,
+  ],
   exports: [ProductService],
 })
 export class ProductModule {}

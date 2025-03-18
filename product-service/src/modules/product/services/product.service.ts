@@ -1,32 +1,32 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { CategoryService } from '../category/category.service';
+import { CreateProductDto } from '../dto/request/create-product.dto';
+import { CategoryService } from '../../category/category.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { Product, ProductDocument } from './schemas/product.schema';
+import { Product, ProductDocument } from '../schemas/product.schema';
 import { Model } from 'mongoose';
 import { getSlug } from 'src/utils/slugify';
 import { ObjectId } from 'src/utils/object-id';
 import { randomString } from 'src/utils/random-string';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
-import { GetProductDto } from './dto/get-products.dto';
-import { ProductRepository } from './repositories/product.repository';
-import { PaginatedProductResponse } from './dto/paginated-product-response.dto';
-import { GetProductsOfShopDto } from './dto/get-products-of-shop.dto';
-import { DeleteProductDto } from './dto/delete-product.dtot';
+import { CloudinaryService } from '../../cloudinary/cloudinary.service';
+import { GetProductDto } from '../dto/request/get-products.dto';
+import { ProductRepository } from '../repositories/product.repository';
+import { GetProductsOfShopDto } from '../dto/request/get-products-of-shop.dto';
+import { DeleteProductDto } from '../dto/request/delete-product.dtot';
 import { PRODUCT_STATUS } from 'src/common/constants/product-status';
-import { ContextProduct } from './states/context.product.state';
+import { ContextProduct } from '../states/context.product.state';
+import { CheckStockDto } from '../dto/request/check-stock.dto';
+import { InventoryService } from './inventory.service';
+import { PaginatedProductResponse } from '../dto/response/paginated-product-response.dto';
+import { OutOfStockDto } from '../dto/response/out-of-stock.dto';
 
 @Injectable()
 export class ProductService {
-  // private readonly productFactory: Record<string, Category> = {
-  //   mens: new MensFashionFactory(),
-  //   toy: new ToyFactory(),
-  // };
   constructor(
     private readonly categoryService: CategoryService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly productRepository: ProductRepository,
     private readonly contextProduct: ContextProduct,
+    private readonly inventoryService: InventoryService,
 
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
   ) {}
@@ -85,7 +85,6 @@ export class ProductService {
       .find({ _id: { $in: objectIds } })
       .lean()
       .exec();
-    if (!products) throw new BadRequestException('Product not found');
     return products;
   }
   async getPaginateProducts(
@@ -127,7 +126,19 @@ export class ProductService {
   }
   async updateProduct(): Promise<void> {}
   addToCart() {
-    this.contextProduct.syncProduct('active');
-    this.contextProduct.addToCart();
+    // this.contextProduct.syncProduct('active');
+    // this.contextProduct.addToCart();
+  }
+  async checkStock(checkStockList: CheckStockDto[]): Promise<OutOfStockDto> {
+    const productIds = checkStockList.map((item) => item.productId);
+    const products = await this.findMany(productIds);
+    return await this.inventoryService.checkStock(products, checkStockList);
+  }
+  async updateStock(updateStockList: CheckStockDto[]): Promise<void> {
+    const result =
+      await this.productRepository.updateStockProducts(updateStockList);
+    if (result.modifiedCount !== updateStockList.length) {
+      throw new BadRequestException('Some products are out of stock');
+    }
   }
 }

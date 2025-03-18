@@ -2,11 +2,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateWriteOpResult } from 'mongoose';
+import { BulkWriteResult } from 'mongodb';
 import { Product, ProductDocument } from '../schemas/product.schema';
-import { GetProductDto } from '../dto/get-products.dto';
-import { GetProductsOfShopDto } from '../dto/get-products-of-shop.dto';
+import { GetProductDto } from '../dto/request/get-products.dto';
+import { GetProductsOfShopDto } from '../dto/request/get-products-of-shop.dto';
 import { ObjectId } from 'src/utils/object-id';
-import { DeleteProductDto } from '../dto/delete-product.dtot';
+import { DeleteProductDto } from '../dto/request/delete-product.dtot';
+import { CheckStockDto } from '../dto/request/check-stock.dto';
 
 @Injectable()
 export class ProductRepository {
@@ -73,5 +75,34 @@ export class ProductRepository {
       _id: ObjectId(updateProduct.productId),
       shop: updateProduct.shopId,
     });
+  }
+  async updateStockProducts(
+    updateStockList: CheckStockDto[],
+  ): Promise<BulkWriteResult> {
+    const bulkOps = updateStockList.map((item) => {
+      if (item.variantId) {
+        return {
+          updateOne: {
+            filter: {
+              _id: item.productId,
+              'variants._id': item.variantId,
+              'variants.stock': { $gte: item.quantity },
+            },
+            update: { $inc: { 'variants.$.stock': -item.quantity } },
+          },
+        };
+      } else {
+        return {
+          updateOne: {
+            filter: {
+              _id: item.productId,
+              stock: { $gte: item.quantity },
+            },
+            update: { $inc: { stock: -item.quantity } },
+          },
+        };
+      }
+    });
+    return await this.productModel.bulkWrite(bulkOps);
   }
 }
