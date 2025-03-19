@@ -12,7 +12,7 @@ import {
 import { ProductService } from './services/product.service';
 import { CreateProductDto } from './dto/request/create-product.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { GrpcMethod } from '@nestjs/microservices';
+import { GrpcMethod, MessagePattern, Payload } from '@nestjs/microservices';
 import { response, Response } from 'src/utils/response';
 import { Product } from './schemas/product.schema';
 import { GetProductDto } from './dto/request/get-products.dto';
@@ -111,9 +111,28 @@ export class ProductController {
     const items = await this.productService.findMany(data.ids);
     return { items: items };
   }
+  @GrpcMethod('ProductService', 'CheckStockAndPrice')
+  async checkStockAndPrice(data: { products: CheckStockDto[] }) {
+    const items = await this.productService.checkStockAndPrice(data.products);
+    return { items: items };
+  }
   @Post('test')
-  async checkStock(@Body() body: CheckStockDto[]) {
-    const items = await this.productService.checkStock(body);
+  async test(@Body() body: CheckStockDto[]) {
+    const items = await this.productService.updateStock(body);
+    return { items: items };
+  }
+  @MessagePattern('update.stock')
+  async updateStock(
+    @Payload() data: CheckStockDto[],
+    // @Ctx() context: RmqContext,
+  ) {
+    const items = await this.productService.updateStock(data);
+    // const originalMessage = context.getMessage();
+    return { items: items };
+  }
+  @MessagePattern('reverse.stock')
+  async reverseStock(@Body() body: CheckStockDto[]) {
+    const items = await this.productService.updateStock(body);
     return { items: items };
   }
 }

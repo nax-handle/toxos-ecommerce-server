@@ -17,7 +17,7 @@ import { ContextProduct } from '../states/context.product.state';
 import { CheckStockDto } from '../dto/request/check-stock.dto';
 import { InventoryService } from './inventory.service';
 import { PaginatedProductResponse } from '../dto/response/paginated-product-response.dto';
-import { OutOfStockDto } from '../dto/response/out-of-stock.dto';
+import { CheckStockAndPriceDto } from '../dto/response/check-stock-and-price.dto';
 
 @Injectable()
 export class ProductService {
@@ -74,7 +74,6 @@ export class ProductService {
 
   async findOne(_id: string): Promise<Product> {
     const product = await this.productModel.findById(ObjectId(_id));
-    console.log(product);
     if (!product) throw new BadRequestException('Product not found');
     return product;
   }
@@ -129,16 +128,30 @@ export class ProductService {
     // this.contextProduct.syncProduct('active');
     // this.contextProduct.addToCart();
   }
-  async checkStock(checkStockList: CheckStockDto[]): Promise<OutOfStockDto> {
+  async checkStockAndPrice(
+    checkStockList: CheckStockDto[],
+  ): Promise<CheckStockAndPriceDto> {
     const productIds = checkStockList.map((item) => item.productId);
     const products = await this.findMany(productIds);
-    return await this.inventoryService.checkStock(products, checkStockList);
+    const [stockResult, priceResult] = await Promise.all([
+      this.inventoryService.checkStock(products, checkStockList),
+      this.inventoryService.checkPrice(products, checkStockList),
+    ]);
+    return {
+      inStock: stockResult.inStock,
+      price: priceResult.priceCorrect,
+      outOfStock: stockResult.outOfStock,
+      priceFluctuations: priceResult.priceFluctuations,
+    };
   }
   async updateStock(updateStockList: CheckStockDto[]): Promise<void> {
     const result =
       await this.productRepository.updateStockProducts(updateStockList);
+    console.log(updateStockList);
+    console.log(result);
     if (result.modifiedCount !== updateStockList.length) {
-      throw new BadRequestException('Some products are out of stock');
+      //  this.client.emit('update.order', { success: true, data });
     }
+    //  this.client.emit('update.order.failed', { success: false, data });
   }
 }

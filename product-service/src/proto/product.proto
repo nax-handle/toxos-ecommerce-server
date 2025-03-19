@@ -5,7 +5,10 @@ package product;
 service ProductService {
   rpc FindOne (ProductById) returns (ProductResponse);
   rpc FindMany (ProductsByIds) returns (ProductsResponse);
+  rpc CheckStockAndPrice (CheckStockAndPriceRequest) returns (CheckStockAndPriceResponse);
 }
+
+
 
 message ProductById {
   string id = 1;
@@ -50,4 +53,25 @@ message Variant {
 
 message ProductsResponse {
   repeated ProductResponse items = 1;
+}
+
+
+//CheckStockAndPrice
+
+message CheckStockAndPriceRequest {
+  repeated CheckStockAndPriceDto products = 1;
+}
+
+message CheckStockAndPriceDto {
+  string productId = 1;
+  string variantId = 2;
+  int32 quantity = 3;
+  double price = 4;
+}
+
+message CheckStockAndPriceResponse {
+  bool inStock = 1;
+  bool price = 2;
+  repeated CheckStockAndPriceDto outOfStock = 3;
+  repeated CheckStockAndPriceDto priceFluctuations = 4;
 }

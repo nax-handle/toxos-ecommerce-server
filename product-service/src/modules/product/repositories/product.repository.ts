@@ -80,25 +80,29 @@ export class ProductRepository {
     updateStockList: CheckStockDto[],
   ): Promise<BulkWriteResult> {
     const bulkOps = updateStockList.map((item) => {
-      if (item.variantId) {
+      if (!item.variantId) {
         return {
           updateOne: {
             filter: {
-              _id: item.productId,
-              'variants._id': item.variantId,
-              'variants.stock': { $gte: item.quantity },
+              _id: ObjectId(item.productId),
+              stock: { $gte: item.quantity },
             },
-            update: { $inc: { 'variants.$.stock': -item.quantity } },
+            update: { $inc: { stock: -item.quantity } },
           },
         };
       } else {
         return {
           updateOne: {
             filter: {
-              _id: item.productId,
-              stock: { $gte: item.quantity },
+              _id: ObjectId(item.productId),
+              variants: {
+                $elemMatch: {
+                  _id: ObjectId(item.variantId),
+                  stock: { $gte: item.quantity },
+                },
+              },
             },
-            update: { $inc: { stock: -item.quantity } },
+            update: { $inc: { 'variants.$.stock': -item.quantity } },
           },
         };
       }
