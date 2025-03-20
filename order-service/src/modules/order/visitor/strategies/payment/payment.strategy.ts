@@ -9,6 +9,12 @@ export class PointerWalletPayment implements PaymentStrategy {
   }
 }
 
+export class StripePayment implements PaymentStrategy {
+  calculate(order: Order): number {
+    return order.totalPrice * PAYMENT_RATING.STRIPE;
+  }
+}
+
 export class DefaultPayment implements PaymentStrategy {
   calculate(order: Order): number {
     return order.totalPrice * 0;

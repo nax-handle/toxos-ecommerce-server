@@ -9,6 +9,7 @@ import {
 import { OrderItem } from './order-item.entity';
 import { ORDER_STATUS } from 'src/constants/order-status';
 import { PAYMENT_METHOD } from 'src/constants/payment-method';
+import { SHIPPING_STATUS } from 'src/constants/shipping-status';
 @Entity('orders')
 export class Order {
   @PrimaryGeneratedColumn('uuid')
@@ -61,6 +62,15 @@ export class Order {
     comment: `Allowed values: ${Object.values(ORDER_STATUS).join(', ')}`,
   })
   status: string;
+
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: false,
+    default: SHIPPING_STATUS.NOT_PACKED,
+    comment: `Allowed values: ${Object.values(SHIPPING_STATUS).join(', ')}`,
+  })
+  shippingStatus: string;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
   orderItems: OrderItem[];
