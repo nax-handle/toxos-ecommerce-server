@@ -1,8 +1,9 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
-import { AddToCartDto } from 'src/modules/cart/dtos/add-to-cart.dto';
-import { UpdateItemCartDto } from 'src/modules/cart/dtos/update-item-cart.dto';
+import { AddToCartDto } from 'src/modules/cart/dto/add-to-cart.dto';
+import { RemoveItemDto } from 'src/modules/cart/dto/remove-item.dto';
+import { UpdateItemCartDto } from 'src/modules/cart/dto/update-item-cart.dto';
 
 @Injectable()
 export class RedisService {
@@ -88,5 +89,35 @@ export class RedisService {
     }
     await this.redis.hdel(key, itemKey);
     await this.redis.hset(key, newItemKey, oldItemData);
+  }
+  async removeItemsFromCart(
+    removeItemsFromCart: RemoveItemDto[],
+  ): Promise<void> {
+    if (!removeItemsFromCart.length) return;
+    const pipeline = this.redis.pipeline();
+    removeItemsFromCart.forEach((item) =>
+      pipeline.hdel(
+        `cart:${item.userId}:${item.shopId},${item.productId}:${item.variantId}`,
+      ),
+    );
+    await pipeline.exec();
+  }
+  async storeOrderIds(
+    paymentSessionId: string,
+    orderIds: string[],
+  ): Promise<void> {
+    await this.redis.set(
+      `payment:${paymentSessionId}:orderIds`,
+      JSON.stringify(orderIds),
+      'EX',
+      60 * 60,
+    );
+  }
+  async getOrderIds(paymentSessionId: string): Promise<string[]> {
+    const data = await this.redis.get(`payment:${paymentSessionId}:orderIds`);
+    return data ? JSON.parse(data) : [];
+  }
+  async deleteOrderIds(paymentSessionId: string): Promise<void> {
+    await this.redis.del(`payment:${paymentSessionId}:orderIds`);
   }
 }

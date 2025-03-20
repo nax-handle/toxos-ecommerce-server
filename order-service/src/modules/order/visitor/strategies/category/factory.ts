@@ -1,4 +1,4 @@
-import { OrderItem } from 'src/modules/order/entities/order.entity';
+import { OrderItem } from 'src/modules/order/entities/order-item.entity';
 import {
   DefaultCashBackStrategy,
   MensFashionCashBackStrategy,

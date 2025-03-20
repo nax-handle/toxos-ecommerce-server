@@ -6,21 +6,7 @@ import { RedisModule } from 'src/databases/redis/redis.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
-  imports: [
-    ConfigModule,
-    RedisModule,
-    ClientsModule.register([
-      {
-        name: 'GRPC_SERVICE',
-        transport: Transport.GRPC,
-        options: {
-          url: '0.0.0.0:50052',
-          package: ['product', 'shop'],
-          protoPath: ['src/proto/product.proto', 'src/proto/shop.proto'],
-        },
-      },
-    ]),
-  ],
+  imports: [ConfigModule, RedisModule],
   controllers: [CartController],
   providers: [CartService],
   exports: [CartService],

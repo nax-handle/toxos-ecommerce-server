@@ -2,13 +2,12 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 import { RedisService } from 'src/databases/redis/redis.service';
-import { AddToCartDto } from './dtos/add-to-cart.dto';
-import { UpdateItemCartDto } from './dtos/update-item-cart.dto';
+import { AddToCartDto } from './dto/add-to-cart.dto';
+import { UpdateItemCartDto } from './dto/update-item-cart.dto';
+import { OrderItem } from '../order/entities/order-item.entity';
+import { RemoveItemDto } from './dto/remove-item.dto';
+import { ProductService } from 'src/interfaces/grpc/product-service.interface';
 
-interface ProductService {
-  FindOne(data: { id: string }): Observable<any>;
-  FindMany(data: { ids: string[] }): Observable<any>;
-}
 interface ShopService {
   FindMany(data: { ids: string[] }): Observable<any>;
 }
@@ -18,13 +17,15 @@ export class CartService implements OnModuleInit {
   private shopService: ShopService;
 
   constructor(
-    @Inject('GRPC_SERVICE') private client: ClientGrpc,
+    @Inject('GRPC_PRODUCT_SERVICE') private clientProduct: ClientGrpc,
+    @Inject('GRPC_AUTH_SERVICE') private clientAuth: ClientGrpc,
+
     private readonly redisService: RedisService,
   ) {}
   onModuleInit() {
     this.productService =
-      this.client.getService<ProductService>('ProductService');
-    this.shopService = this.client.getService<ShopService>('ShopService');
+      this.clientProduct.getService<ProductService>('ProductService');
+    this.shopService = this.clientAuth.getService<ShopService>('ShopService');
   }
   async addToCart(addToCart: AddToCartDto): Promise<any> {
     return await this.redisService.addToCart(addToCart);
@@ -73,5 +74,8 @@ export class CartService implements OnModuleInit {
   }
   async updateItemCart(updateItemCart: UpdateItemCartDto): Promise<void> {
     await this.redisService.updateItemCart(updateItemCart);
+  }
+  async removeItemsFromCart(removeItems: RemoveItemDto[]): Promise<void> {
+    await this.redisService.removeItemsFromCart(removeItems);
   }
 }

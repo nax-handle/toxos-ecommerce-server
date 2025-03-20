@@ -8,9 +8,9 @@ import {
   Req,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
-import { AddToCartDto } from './dtos/add-to-cart.dto';
+import { AddToCartDto } from './dto/add-to-cart.dto';
 import { Request } from 'express';
-import { UpdateItemCartDto } from './dtos/update-item-cart.dto';
+import { UpdateItemCartDto } from './dto/update-item-cart.dto';
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}

@@ -5,12 +5,12 @@ export interface PaymentStrategy {
 }
 export class PointerWalletPayment implements PaymentStrategy {
   calculate(order: Order): number {
-    return order.totalAmount * PAYMENT_RATING.POINTER_WALLET;
+    return order.totalPrice * PAYMENT_RATING.POINTER_WALLET;
   }
 }
 
 export class DefaultPayment implements PaymentStrategy {
   calculate(order: Order): number {
-    return order.totalAmount * 0;
+    return order.totalPrice * 0;
   }
 }

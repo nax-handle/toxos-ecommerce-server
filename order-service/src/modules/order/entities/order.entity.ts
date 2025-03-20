@@ -1,12 +1,62 @@
-export interface OrderItem {
-  unitPrice: number;
-  quantity: number;
-  category: string;
-  totalPrice: number;
-}
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
+import { OrderItem } from './order-item.entity';
+import { ORDER_STATUS } from 'src/constants/order-status';
+import { PAYMENT_METHOD } from 'src/constants/payment-method';
+@Entity('orders')
+export class Order {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-export interface Order {
-  totalAmount: number;
-  items: OrderItem[];
+  @Column({ type: 'varchar', nullable: false, length: 50 })
+  userId: string;
+
+  @Column({ type: 'json', nullable: false })
+  shop: {
+    id: string;
+    name: string;
+    logo: string;
+    slug: string;
+  };
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  totalPrice: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  totalShipping: number;
+
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: false,
+    comment: `Allowed values: ${Object.values(PAYMENT_METHOD).join(', ')}`,
+  })
   paymentMethod: string;
+
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: false,
+    default: ORDER_STATUS.PENDING,
+    comment: `Allowed values: ${Object.values(ORDER_STATUS).join(', ')}`,
+  })
+  status: string;
+
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
+  orderItems: OrderItem[];
+
+  // @Column({ type: 'varchar', })
+  // voucher: string;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 }
