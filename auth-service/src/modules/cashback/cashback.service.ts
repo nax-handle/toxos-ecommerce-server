@@ -15,6 +15,7 @@ export class CashbackService {
 
   async create(createCashbackDto: CreateCashbackDto): Promise<void> {
     const newCashback = this.cashbackRepository.create(createCashbackDto);
+    console.log(newCashback);
     await Promise.all([
       await this.cashbackRepository.save(newCashback),
       await this.userService.updateBalanceCashback(

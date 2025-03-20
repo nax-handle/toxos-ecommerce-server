@@ -27,23 +27,20 @@ export class CashbackHistory {
     precision: 10,
     scale: 2,
     default: 0,
-    comment: 'Số tiền cashback',
   })
   amount: number;
 
   @Column({
     type: 'varchar',
     length: 50,
-    comment: 'Loại cashback: order, promotion, refund...',
   })
   type: string;
 
-  @Column({ type: 'text', array: true, nullable: true })
+  @Column({ type: 'json', nullable: true })
   orderIds?: string[];
 
   @CreateDateColumn({
     type: 'timestamp',
-    comment: 'Thời điểm cashback được ghi nhận',
   })
   createdAt: Date;
 }

@@ -16,8 +16,10 @@ export class UserService {
       throw new BadRequestException('User already exists');
     }
   }
-  create(createUser: CreateUserDto) {
-    return this.userRepository.save(createUser);
+  async create(createUser: CreateUserDto): Promise<User> {
+    const user = this.userRepository.create(createUser);
+    await this.userRepository.save(user);
+    return user;
   }
   async findUserById(id: string, msg: string): Promise<User> {
     const user = await this.userRepository.findOne({
@@ -32,6 +34,10 @@ export class UserService {
     return await this.userRepository.findOne({ where: { email: email } });
   }
   async updateBalanceCashback(amount: number, id: string) {
-    return await this.userRepository.increment({ id: id }, 'amount', amount);
+    return await this.userRepository.increment(
+      { id: id },
+      'cashbackBalance',
+      amount,
+    );
   }
 }

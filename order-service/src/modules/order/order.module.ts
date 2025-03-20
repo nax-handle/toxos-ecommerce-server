@@ -14,7 +14,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderItem } from './entities/order-item.entity';
 import { CartModule } from '../cart/cart.module';
 import { PaymentModule } from '../payment/payment.module';
-import { RabbitMQModule } from 'src/rabbitmq/rabbitmq.module';
+import { RabbitMQModule } from 'src/modules/rabbitmq/rabbitmq.module';
 
 @Module({
   controllers: [OrderController],

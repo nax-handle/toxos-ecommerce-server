@@ -31,6 +31,8 @@ export class AuthService {
     const { email } = verify;
     const password = await this.otpService.verifyOtp(verify);
     const user = await this.userService.create({ email, password });
-    return await this.tokenService.generateToken(user);
+    return await this.tokenService.generateToken(
+      JSON.parse(JSON.stringify(user)),
+    );
   }
 }

@@ -151,13 +151,14 @@ export class ProductService {
     const result =
       await this.productRepository.updateStockProducts(updateStockList);
     if (result.modifiedCount !== updateStockList.items.length) {
-      // this.client.emit('update.order.failed', {
+      // this.client.emit('order.failed', {
       //   success: false,
       //   orderIds: updateStockList.orderIds,
       // });
     }
-    this.client.send('cashback.order', updateStockList.orderIds).subscribe({
+    this.client.send('order.paid', updateStockList.orderIds).subscribe({
       error: (err) => {
+        //refund
         console.error('Failed to send message:', err);
       },
     });

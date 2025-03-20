@@ -6,7 +6,7 @@ import { VoucherModule } from './modules/voucher/voucher.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { MySQLModule } from './database/mysql.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
+import { RabbitMQModule } from './modules/rabbitmq/rabbitmq.module';
 
 @Global()
 @Module({

@@ -139,7 +139,7 @@ export class OrderService {
       .send('update.stock', { orderIds, items: productsToUpdate })
       .subscribe({
         error: (err) => {
-          //REFUND MONEY 
+          //REFUND MONEY
           console.error('Failed to send message:', err);
         },
       });
@@ -178,18 +178,21 @@ export class OrderService {
   }
   async cashBackOrder(orderIds: string[]) {
     const orders = await this.getOrderByIds(orderIds);
-    console.time('CashBackCalculation');
+    await this.orderRepository.update(
+      { id: In(orderIds) },
+      { status: ORDER_STATUS.PAID },
+    );
     const totalCashBack = orders.reduce((total, order) => {
       const orderVisitor = new OrderVisitor(order);
       const cashBackCalculator = new CashBackCalculator();
       const orderCashBack = orderVisitor.getTotalCashBack(cashBackCalculator);
       return total + orderCashBack;
     }, 0);
-    console.timeEnd('CashBackCalculation');
-    console.log(totalCashBack);
-    this.orderRepository.update(
-      { id: In(orderIds) },
-      { status: ORDER_STATUS.PAID },
-    );
+    this.client.send('cashback.order', {
+      userId: orders[0].userId,
+      amount: totalCashBack,
+      type: 'order',
+      orderIds,
+    });
   }
 }

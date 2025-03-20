@@ -53,7 +53,7 @@ export class OrderController {
     await this.orderService.webhookStripe(req.rawBody, signature);
     return res.status(200).send('Webhook received');
   }
-  @MessagePattern('cashback.order')
+  @MessagePattern('order.paid')
   async cashBackOrder(@Payload() body: string[]) {
     console.log('first');
     await this.orderService.cashBackOrder(body);

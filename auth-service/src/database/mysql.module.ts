@@ -17,6 +17,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         password: configService.get<string>('MYSQL_PASSWORD'),
         database: configService.get<string>('MYSQL_DATABASE'),
         autoLoadEntities: true,
+        // synchronize: true,
+        // dropSchema: true,
       }),
     }),
   ],
