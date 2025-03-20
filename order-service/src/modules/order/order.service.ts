@@ -52,7 +52,16 @@ export class OrderService {
         shopId: order.shop.id,
       })),
     );
-    // await this.productService.checkStockAndPrice(allProducts);
+    this.productService
+      .checkStockAndPrice({ products: allProducts })
+      .subscribe((result) => {
+        if (!result.items.inStock) {
+          return result.items.outOfStock;
+        }
+        if (!result.items.price) {
+          return result.items.priceFluctuations;
+        }
+      });
     let totalOrders = 0;
     const insertOrders = createOrderDto.orders.map((order) => {
       const orderItemsWithPrice = order.orderItems.map((item) => {
