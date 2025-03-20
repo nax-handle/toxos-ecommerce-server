@@ -31,4 +31,7 @@ export class UserService {
   async findUserByEmail(email: string): Promise<User | null> {
     return await this.userRepository.findOne({ where: { email: email } });
   }
+  async updateBalanceCashback(amount: number, id: string) {
+    return await this.userRepository.increment({ id: id }, 'amount', amount);
+  }
 }

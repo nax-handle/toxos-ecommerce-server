@@ -1,4 +1,5 @@
 import { Address } from 'src/modules/address/entities/address.entity';
+import { CashbackHistory } from 'src/modules/cashback/entities/cashback.entity';
 import { Shop } from 'src/modules/shop/entities/shop.entity';
 import {
   Entity,
@@ -47,6 +48,9 @@ export class User {
   @OneToOne(() => Shop, (shop) => shop.user)
   shop: Shop;
 
+  @Column({ default: 0 })
+  cashbackBalance: number;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
@@ -66,4 +70,7 @@ export class User {
   }
   @OneToMany(() => Address, (address) => address.user)
   addresses: Address[];
+
+  @OneToMany(() => CashbackHistory, (cashback) => cashback.user)
+  cashbackHistory: CashbackHistory[];
 }

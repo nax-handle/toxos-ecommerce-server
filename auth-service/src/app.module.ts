@@ -10,6 +10,7 @@ import { RedisModule } from './database/redis.module';
 import { AddressModule } from './modules/address/address.module';
 import { RoleModule } from './modules/role/role.module';
 import { ShopModule } from './modules/shop/shop.module';
+import { CashbackModule } from './modules/cashback/cashback.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -24,6 +25,7 @@ import { ShopModule } from './modules/shop/shop.module';
     AddressModule,
     RoleModule,
     ShopModule,
+    CashbackModule,
   ],
   controllers: [AppController],
   providers: [AppService],
