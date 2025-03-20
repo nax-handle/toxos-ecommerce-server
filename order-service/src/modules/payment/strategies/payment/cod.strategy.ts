@@ -1,4 +1,4 @@
-import { PaymentStrategy } from '../interface/strategy.interface';
+import { PaymentStrategy } from '../interface/payment-strategy.interface';
 import { ProcessPaymentDto } from '../../dto/process-payment.dto';
 
 export class CODPaymentStrategy implements PaymentStrategy {

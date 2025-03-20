@@ -1,5 +1,5 @@
 import { Order } from 'src/modules/order/entities/order.entity';
-import { PaymentStrategy } from './interface/strategy.interface';
+import { PaymentStrategy } from './interface/payment-strategy.interface';
 import { BadRequestException, Inject } from '@nestjs/common';
 import { StripePaymentStrategy } from './payment/stripe.strategy';
 import { CODPaymentStrategy } from './payment/cod.strategy';

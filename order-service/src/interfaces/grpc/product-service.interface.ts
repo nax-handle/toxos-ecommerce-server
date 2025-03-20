@@ -7,12 +7,12 @@ export interface CheckStockAndPriceDto {
   price: number;
 }
 export interface CheckStockAndPriceResponse {
-  items: {
-    inStock: boolean;
-    price: boolean;
-    outOfStock: CheckStockAndPriceDto[];
-    priceFluctuations: CheckStockAndPriceDto[];
-  };
+  // items: {
+  inStock: boolean;
+  price: boolean;
+  outOfStock: CheckStockAndPriceDto[];
+  priceFluctuations: CheckStockAndPriceDto[];
+  // };
 }
 export interface ProductService {
   FindOne(data: { id: string }): Observable<any>;

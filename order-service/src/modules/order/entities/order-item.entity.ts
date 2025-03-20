@@ -12,6 +12,9 @@ export class OrderItem {
   productId: string;
 
   @Column({ type: 'varchar', length: 255 })
+  variantId: string;
+
+  @Column({ type: 'varchar', length: 255 })
   productName: string;
 
   @Column({ type: 'varchar', length: 255 })

@@ -21,6 +21,18 @@ async function bootstrap() {
       },
     },
   );
+  app.connectMicroservice({
+    transport: Transport.RMQ,
+    options: {
+      urls: [process.env.RMQ_URL],
+      queue: process.env.RMQ_QUEUE,
+      queueOptions: {
+        durable: false,
+      },
+      prefetchCount: 1,
+    },
+  });
+  await app.startAllMicroservices();
   await grpcApp.listen();
 }
 bootstrap();

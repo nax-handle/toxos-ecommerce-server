@@ -1,12 +1,26 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  Res,
+  Headers,
+  RawBodyRequest,
+} from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { PaginationResultDto } from './dto/response/pagination.dto';
 import { Order } from './entities/order.entity';
-
+import { StripeService } from '../payment/services/stripe.service';
+import { Request, Response } from 'express';
 @Controller('order')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    private readonly stripeService: StripeService,
+  ) {}
   @Post('create')
   async create(@Body() body: CreateOrderDto) {
     return {
@@ -25,5 +39,17 @@ export class OrderController {
       page: Number(page),
       userId: userId,
     });
+  }
+  @Post('webhook/stripe')
+  async webhookStripe(
+    @Req() req: RawBodyRequest<Request>,
+    @Res() res: Response,
+    @Headers('stripe-signature') signature: string,
+  ) {
+    if (!req.rawBody) {
+      return res.status(400).send('Raw body not found');
+    }
+    await this.orderService.webhookStripe(req.rawBody, signature);
+    return res.status(200).send('Webhook received');
   }
 }

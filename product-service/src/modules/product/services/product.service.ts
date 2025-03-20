@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Inject } from '@nestjs/common';
 import { CreateProductDto } from '../dto/request/create-product.dto';
 import { CategoryService } from '../../category/category.service';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,19 +13,22 @@ import { ProductRepository } from '../repositories/product.repository';
 import { GetProductsOfShopDto } from '../dto/request/get-products-of-shop.dto';
 import { DeleteProductDto } from '../dto/request/delete-product.dtot';
 import { PRODUCT_STATUS } from 'src/common/constants/product-status';
-import { ContextProduct } from '../states/context.product.state';
+// import { ContextProduct } from '../states/context.product.state';
 import { CheckStockDto } from '../dto/request/check-stock.dto';
 import { InventoryService } from './inventory.service';
 import { PaginatedProductResponse } from '../dto/response/paginated-product-response.dto';
 import { CheckStockAndPriceDto } from '../dto/response/check-stock-and-price.dto';
+import { UpdateStockDto } from '../dto/request/update-stock.dto';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class ProductService {
   constructor(
+    @Inject('RMQ_SERVICE') private readonly client: ClientProxy,
     private readonly categoryService: CategoryService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly productRepository: ProductRepository,
-    private readonly contextProduct: ContextProduct,
+    // private readonly contextProduct: ContextProduct,
     private readonly inventoryService: InventoryService,
 
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
@@ -144,14 +147,20 @@ export class ProductService {
       priceFluctuations: priceResult.priceFluctuations,
     };
   }
-  async updateStock(updateStockList: CheckStockDto[]): Promise<void> {
+  async updateStock(updateStockList: UpdateStockDto): Promise<void> {
     const result =
       await this.productRepository.updateStockProducts(updateStockList);
-    console.log(updateStockList);
-    console.log(result);
-    if (result.modifiedCount !== updateStockList.length) {
-      //  this.client.emit('update.order', { success: true, data });
+    if (result.modifiedCount !== updateStockList.items.length) {
+      this.client.send('cashback.order', {
+        success: true,
+        orderIds: updateStockList.orderIds,
+      });
+      // }
     }
-    //  this.client.emit('update.order.failed', { success: false, data });
+
+    // this.client.emit('update.order.failed', {
+    //   success: false,
+    //   orderIds: updateStockList.orderIds,
+    // });
   }
 }

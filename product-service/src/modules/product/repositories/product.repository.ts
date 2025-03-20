@@ -1,4 +1,3 @@
-// repositories/product.repository.ts
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateWriteOpResult } from 'mongoose';
@@ -8,7 +7,7 @@ import { GetProductDto } from '../dto/request/get-products.dto';
 import { GetProductsOfShopDto } from '../dto/request/get-products-of-shop.dto';
 import { ObjectId } from 'src/utils/object-id';
 import { DeleteProductDto } from '../dto/request/delete-product.dtot';
-import { CheckStockDto } from '../dto/request/check-stock.dto';
+import { UpdateStockDto } from '../dto/request/update-stock.dto';
 
 @Injectable()
 export class ProductRepository {
@@ -77,9 +76,9 @@ export class ProductRepository {
     });
   }
   async updateStockProducts(
-    updateStockList: CheckStockDto[],
+    updateStockList: UpdateStockDto,
   ): Promise<BulkWriteResult> {
-    const bulkOps = updateStockList.map((item) => {
+    const bulkOps = updateStockList.items.map((item) => {
       if (!item.variantId) {
         return {
           updateOne: {

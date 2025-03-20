@@ -6,6 +6,7 @@ import { VoucherModule } from './modules/voucher/voucher.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { MySQLModule } from './database/mysql.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
 
 @Global()
 @Module({
@@ -16,7 +17,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         name: 'GRPC_PRODUCT_SERVICE',
         transport: Transport.GRPC,
         options: {
-          url: '0.0.0.0:50051',
+          url: '0.0.0.0:50052',
           package: ['product'],
           protoPath: ['src/proto/product.proto'],
         },
@@ -25,7 +26,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         name: 'GRPC_AUTH_SERVICE',
         transport: Transport.GRPC,
         options: {
-          url: '0.0.0.0:50052',
+          url: '0.0.0.0:50051',
           package: ['shop'],
           protoPath: ['src/proto/shop.proto'],
         },
@@ -36,6 +37,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     OrderModule,
     VoucherModule,
     PaymentModule,
+    RabbitMQModule,
   ],
   providers: [],
   exports: [ClientsModule],

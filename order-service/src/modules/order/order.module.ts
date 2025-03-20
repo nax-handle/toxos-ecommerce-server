@@ -1,15 +1,20 @@
-import { Module } from '@nestjs/common';
+import {
+  forwardRef,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+} from '@nestjs/common';
 import { OrderService } from './order.service';
 import { OrderController } from './order.controller';
-import { PaymentStrategyFactory } from '../payment/strategies/strategy-payment';
+import { PaymentStrategyFactory } from '../payment/strategies/strategies-payment';
 import { StripePaymentStrategy } from '../payment/strategies/payment/stripe.strategy';
 import { CODPaymentStrategy } from '../payment/strategies/payment/cod.strategy';
 import { Order } from './entities/order.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderItem } from './entities/order-item.entity';
-import { CartService } from '../cart/cart.service';
 import { CartModule } from '../cart/cart.module';
 import { PaymentModule } from '../payment/payment.module';
+import { RabbitMQModule } from 'src/rabbitmq/rabbitmq.module';
 
 @Module({
   controllers: [OrderController],
@@ -17,6 +22,7 @@ import { PaymentModule } from '../payment/payment.module';
     TypeOrmModule.forFeature([Order, OrderItem]),
     CartModule,
     PaymentModule,
+    RabbitMQModule,
   ],
   providers: [
     OrderService,
@@ -24,5 +30,6 @@ import { PaymentModule } from '../payment/payment.module';
     StripePaymentStrategy,
     CODPaymentStrategy,
   ],
+  exports: [OrderService],
 })
 export class OrderModule {}

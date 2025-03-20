@@ -10,11 +10,12 @@ import { Shop, ShopSchema } from '../shop/schemas/shop.schema';
 import { ProductRepository } from './repositories/product.repository';
 import { ContextProduct } from './states/context.product.state';
 import { InventoryService } from './services/inventory.service';
+import { RabbitMQModule } from 'src/rabbitmq/rabbitmq.module';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
     MongooseModule.forFeature([{ name: Shop.name, schema: ShopSchema }]),
-
+    RabbitMQModule,
     CloudinaryModule,
     CategoryModule,
     ShopModule,

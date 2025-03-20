@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PaymentStrategyFactory } from './strategies/strategy-payment';
+import { PaymentStrategyFactory } from './strategies/strategies-payment';
 import { Order } from '../order/entities/order.entity';
 import { ProcessPaymentDto } from './dto/process-payment.dto';
 

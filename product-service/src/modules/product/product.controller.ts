@@ -20,6 +20,7 @@ import { GetProductsOfShopDto } from './dto/request/get-products-of-shop.dto';
 import { Request } from '@nestjs/common';
 import { CheckStockDto } from './dto/request/check-stock.dto';
 import { PaginatedProductResponse } from './dto/response/paginated-product-response.dto';
+import { UpdateStockDto } from './dto/request/update-stock.dto';
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
@@ -114,25 +115,20 @@ export class ProductController {
   @GrpcMethod('ProductService', 'CheckStockAndPrice')
   async checkStockAndPrice(data: { products: CheckStockDto[] }) {
     const items = await this.productService.checkStockAndPrice(data.products);
-    return { items: items };
+    return items;
   }
   @Post('test')
-  async test(@Body() body: CheckStockDto[]) {
+  async test(@Body() body: UpdateStockDto) {
     const items = await this.productService.updateStock(body);
     return { items: items };
   }
   @MessagePattern('update.stock')
-  async updateStock(
-    @Payload() data: CheckStockDto[],
-    // @Ctx() context: RmqContext,
-  ) {
-    const items = await this.productService.updateStock(data);
-    // const originalMessage = context.getMessage();
-    return { items: items };
+  async updateStock(@Payload() data: UpdateStockDto) {
+    await this.productService.updateStock(data);
   }
-  @MessagePattern('reverse.stock')
-  async reverseStock(@Body() body: CheckStockDto[]) {
-    const items = await this.productService.updateStock(body);
-    return { items: items };
-  }
+  // @MessagePattern('reverse.stock')
+  // async reverseStock(@Body() body: CheckStockDto[]) {
+  //   const items = await this.productService.updateStock(body);
+  //   return { items: items };
+  // }
 }

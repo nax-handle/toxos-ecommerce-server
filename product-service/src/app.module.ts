@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ProductModule } from './modules/product/product.module';
 import { MongoDBModule } from './databases/mongodb';
 import { ConfigModule } from '@nestjs/config';
 import { CategoryModule } from './modules/category/category.module';
 import { ShopModule } from './modules/shop/shop.module';
+import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
 
 @Module({
   imports: [
@@ -14,9 +13,7 @@ import { ShopModule } from './modules/shop/shop.module';
     MongoDBModule,
     CategoryModule,
     ShopModule,
+    RabbitMQModule,
   ],
-
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

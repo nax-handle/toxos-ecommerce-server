@@ -1,7 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
-import { RedisService } from 'src/databases/redis/redis.service';
+import { RedisService } from 'src/database/redis/redis.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { UpdateItemCartDto } from './dto/update-item-cart.dto';
 import { OrderItem } from '../order/entities/order-item.entity';
