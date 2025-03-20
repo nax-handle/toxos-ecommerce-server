@@ -15,8 +15,8 @@ async function bootstrap() {
     {
       transport: Transport.GRPC,
       options: {
-        package: ['product', 'shop'],
-        protoPath: ['./src/proto/product.proto', './src/proto/shop.proto'],
+        package: ['product'],
+        protoPath: ['./src/proto/product.proto'],
         url: '0.0.0.0:50052',
       },
     },
@@ -29,7 +29,6 @@ async function bootstrap() {
       queueOptions: {
         durable: false,
       },
-      prefetchCount: 1,
     },
   });
   await app.startAllMicroservices();

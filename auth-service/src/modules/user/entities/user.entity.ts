@@ -1,3 +1,4 @@
+import { Address } from 'src/modules/address/entities/address.entity';
 import { Shop } from 'src/modules/shop/entities/shop.entity';
 import {
   Entity,
@@ -7,6 +8,7 @@ import {
   UpdateDateColumn,
   OneToOne,
   BeforeInsert,
+  OneToMany,
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -62,4 +64,6 @@ export class User {
       this.username = this.email.split('@')[0];
     }
   }
+  @OneToMany(() => Address, (address) => address.user)
+  addresses: Address[];
 }

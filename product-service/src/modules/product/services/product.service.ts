@@ -151,16 +151,16 @@ export class ProductService {
     const result =
       await this.productRepository.updateStockProducts(updateStockList);
     if (result.modifiedCount !== updateStockList.items.length) {
-      this.client.send('cashback.order', {
-        success: true,
-        orderIds: updateStockList.orderIds,
-      });
-      // }
+      // this.client.emit('update.order.failed', {
+      //   success: false,
+      //   orderIds: updateStockList.orderIds,
+      // });
     }
-
-    // this.client.emit('update.order.failed', {
-    //   success: false,
-    //   orderIds: updateStockList.orderIds,
-    // });
+    this.client.send('cashback.order', updateStockList.orderIds).subscribe({
+      error: (err) => {
+        console.error('Failed to send message:', err);
+      },
+    });
+    console.log('send');
   }
 }

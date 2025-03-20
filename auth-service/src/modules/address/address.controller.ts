@@ -1,34 +1,63 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { AddressService } from './address.service';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
-
+import { AuthGuard } from 'src/common/guards/auth.guard';
+import { Request } from 'express';
+import { User } from '../user/entities/user.entity';
 @Controller('address')
 export class AddressController {
   constructor(private readonly addressService: AddressService) {}
 
   @Post()
-  create(@Body() createAddressDto: CreateAddressDto) {
-    return this.addressService.create(createAddressDto);
+  @UseGuards(AuthGuard)
+  create(@Body() createAddressDto: CreateAddressDto, @Req() req: Request) {
+    return this.addressService.create({
+      ...createAddressDto,
+      user: req['user'] as User,
+    });
   }
 
   @Get()
-  findAll() {
-    return this.addressService.findAll();
+  @UseGuards(AuthGuard)
+  findAll(@Req() req: Request) {
+    const user = req['user'] as User;
+    return this.addressService.findAll(user.id);
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   findOne(@Param('id') id: string) {
-    return this.addressService.findOne(+id);
+    return this.addressService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAddressDto: UpdateAddressDto) {
-    return this.addressService.update(+id, updateAddressDto);
+  @UseGuards(AuthGuard)
+  update(
+    @Param('id') id: string,
+    @Body() updateAddressDto: UpdateAddressDto,
+    @Req() req: Request,
+  ) {
+    return this.addressService.update(id, {
+      ...updateAddressDto,
+      user: req['user'] as User,
+    });
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.addressService.remove(+id);
+  @UseGuards(AuthGuard)
+  remove(@Param('id') id: string, @Req() req: Request) {
+    const user = req['user'] as User;
+    return this.addressService.remove(id, user.id);
   }
 }
