@@ -7,7 +7,6 @@ export class CheckoutSessionCompletedHandler implements WebhookHandler {
   constructor(private redisService: RedisService) {}
   async handle(event: Stripe.Event): Promise<string[]> {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
-    console.log(paymentIntent);
     const ids = await this.redisService.getOrderIds(paymentIntent.id);
     await this.redisService.deleteOrderIds(paymentIntent.id);
     return ids;

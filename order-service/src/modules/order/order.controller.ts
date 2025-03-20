@@ -15,6 +15,7 @@ import { PaginationResultDto } from './dto/response/pagination.dto';
 import { Order } from './entities/order.entity';
 import { StripeService } from '../payment/services/stripe.service';
 import { Request, Response } from 'express';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 @Controller('order')
 export class OrderController {
   constructor(
@@ -51,5 +52,10 @@ export class OrderController {
     }
     await this.orderService.webhookStripe(req.rawBody, signature);
     return res.status(200).send('Webhook received');
+  }
+  @MessagePattern('cashback.order')
+  async cashBackOrder(@Payload() body: string[]) {
+    console.log('first');
+    await this.orderService.cashBackOrder(body);
   }
 }

@@ -1,32 +1,25 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import * as express from 'express';
+import { Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    rawBody: true,
-  });
-  // app.enableCors({
-  //   origin: ['http://localhost:3004', 'http://localhost'],
-  //   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  //   allowedHeaders: ['Content-Type', 'Authorization'],
-  // });
+  const app = await NestFactory.create(AppModule, { rawBody: true });
+
   app.useGlobalPipes(new ValidationPipe());
-  app.connectMicroservice([]);
-  // app.use('/order/webhook/stripe', express.raw({ type: 'application/json' }));
+  app.connectMicroservice({
+    transport: Transport.RMQ,
+    options: {
+      urls: [process.env.RMQ_URL],
+      queue: process.env.RMQ_QUEUE,
+      queueOptions: { durable: false },
+      retryAttempts: 5,
+      retryDelay: 3000,
+    },
+  });
+
+  await app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 3002);
+  console.log(`Application running on port ${process.env.PORT ?? 3002}`);
 }
 bootstrap();
-// import { NestFactory } from '@nestjs/core';
-// import { AppModule } from './app.module';
-// import { ValidationPipe } from '@nestjs/common';
-// import * as express from 'express';
-
-// async function bootstrap() {
-//   const app = await NestFactory.create(AppModule);
-//   app.useGlobalPipes(new ValidationPipe());
-//   app.use('/order/webhook/stripe', express.raw({ type: 'application/json' }));
-//   await app.listen(process.env.PORT ?? 3002);
-// }
-// bootstrap();

@@ -25,6 +25,20 @@ export class Order {
     slug: string;
   };
 
+  @Column({ type: 'json', nullable: false })
+  address: {
+    street: string;
+    ward?: string;
+    district: string;
+    city: string;
+    state?: string;
+    country: string;
+    postalCode?: string;
+    latitude?: number;
+    longitude?: number;
+    note?: string;
+  };
+
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   totalPrice: number;
 
@@ -50,9 +64,6 @@ export class Order {
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
   orderItems: OrderItem[];
-
-  // @Column({ type: 'varchar', })
-  // voucher: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

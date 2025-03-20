@@ -136,20 +136,10 @@ export class OrderService {
       })),
     );
     this.client
-      .connect()
-      .then(() => {
-        console.log('Connected to RabbitMQ');
-      })
-      .catch((err) => {
-        console.error('Failed to connect to RabbitMQ:', err);
-      });
-    this.client
       .send('update.stock', { orderIds, items: productsToUpdate })
       .subscribe({
-        next: (response) => {
-          console.log('Message sent successfully:', response);
-        },
         error: (err) => {
+          //REFUND MONEY 
           console.error('Failed to send message:', err);
         },
       });
@@ -186,14 +176,20 @@ export class OrderService {
       totalPages: Math.ceil(total / limit),
     };
   }
-  // async calculateLoyaltyPoints() {
-  // this.orderRepository.update(
-  //       { id: In(orderIds) },
-  //       { status: ORDER_STATUS.PAID },
-  //     )
-  //   const orders = await this.getOrders('1');
-  //   const order = new OrderVisitor(orders);
-  //   const cashBackCalculator = new CashBackCalculator();
-  //   return order.getTotalCashBack(cashBackCalculator);
-  // }
+  async cashBackOrder(orderIds: string[]) {
+    const orders = await this.getOrderByIds(orderIds);
+    console.time('CashBackCalculation');
+    const totalCashBack = orders.reduce((total, order) => {
+      const orderVisitor = new OrderVisitor(order);
+      const cashBackCalculator = new CashBackCalculator();
+      const orderCashBack = orderVisitor.getTotalCashBack(cashBackCalculator);
+      return total + orderCashBack;
+    }, 0);
+    console.timeEnd('CashBackCalculation');
+    console.log(totalCashBack);
+    this.orderRepository.update(
+      { id: In(orderIds) },
+      { status: ORDER_STATUS.PAID },
+    );
+  }
 }

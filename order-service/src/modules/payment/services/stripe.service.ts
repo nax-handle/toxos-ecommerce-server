@@ -42,7 +42,7 @@ export class StripeService {
           },
         ],
         mode: 'payment',
-        success_url: `${this.stripeConfig.getConfig().stripeSuccessUrl as string}/success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${this.stripeConfig.getConfig().stripeSuccessUrl as string}/success?orderIds=${JSON.stringify(orderIds)}`,
         cancel_url: `${this.stripeConfig.getConfig().stripeCancelUrl}/cancel`,
       });
 
