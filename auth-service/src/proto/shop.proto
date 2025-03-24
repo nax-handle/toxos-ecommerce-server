@@ -3,22 +3,31 @@ syntax = "proto3";
 package shop;
 
 service ShopService {
-  rpc FindShops (FindShopsRequest) returns (FindShopsResponse);
-}
-
-message FindShopRequest {
-  string email = 1;
-  string password = 2;
-  string type = 3;
-  string code = 4;
+  rpc FindMany (ShopsByIds) returns (ShopsResponse);
+  rpc FindOne (ShopById) returns (ShopResponse);
 
 }
 
-message FindShopsRequest {
-  FindShopRequest item = 1
+message ShopById {
+  string id = 1;
 }
 
-message FindShopsResponse {
-  string token = 1;
-  string data = 2;
+message ShopsByIds {
+  repeated string ids = 1;
+}
+
+message ShopResponse {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  string logo = 4;
+  string description = 5;
+  string phoneNumber = 6;
+  string address = 7;
+  string detailedAddress = 8;
+  string userId = 9;
+}
+
+message ShopsResponse {
+  repeated ShopResponse shops = 1;
 }

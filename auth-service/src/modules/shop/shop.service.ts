@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { RegisterShopDto } from './dto/register-shop.dto';
 import { Shop } from './entities/shop.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 
@@ -22,6 +26,19 @@ export class ShopService {
       relations: ['user'],
     });
     if (!shop) throw new NotFoundException();
+    return shop;
+  }
+  async getShopById(id: string): Promise<Shop> {
+    const shop = await this.shopRepository.findOne({ where: { id: id } });
+    if (!shop) throw new NotFoundException();
+    return shop;
+  }
+  async findMany(ids: string[]): Promise<Shop[]> {
+    return await this.shopRepository.find({ where: { id: In(ids) } });
+  }
+  async findOne(id: string): Promise<Shop> {
+    const shop = await this.shopRepository.findOne({ where: { id: id } });
+    if (!shop) throw new BadRequestException('Shop not found');
     return shop;
   }
 }

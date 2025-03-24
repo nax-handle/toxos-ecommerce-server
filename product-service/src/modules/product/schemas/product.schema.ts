@@ -53,8 +53,8 @@ export class Product {
   @Prop({ required: true })
   optionName: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'Shop' })
-  shop: Types.ObjectId;
+  @Prop({ required: true })
+  shop: string;
 
   @Prop({ type: Types.ObjectId, index: true, ref: 'Category' })
   category: Types.ObjectId;

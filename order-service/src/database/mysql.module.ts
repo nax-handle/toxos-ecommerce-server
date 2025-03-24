@@ -19,6 +19,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         database: configService.get<string>('MYSQL_DATABASE'),
         autoLoadEntities: true,
         synchronize: true,
+        // dropSchema: true,
       }),
     }),
   ],

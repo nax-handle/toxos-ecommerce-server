@@ -32,24 +32,21 @@ export class ProductRepository {
     getProductsOfShop: GetProductsOfShopDto,
   ): Promise<Product[]> {
     const { page, size, shopId } = getProductsOfShop;
-    console.log(shopId);
-    console.log(getProductsOfShop);
     return this.productModel
-      .find({ shop: ObjectId(shopId) })
+      .find({ shop: shopId })
       .skip((page - 1) * size)
       .limit(size)
       .lean()
       .exec();
   }
-  countProductsOfShop(shopId: string): Promise<number> {
-    return this.productModel.countDocuments({ shop: ObjectId(shopId) });
+  countProductsOfShop(shop: string): Promise<number> {
+    return this.productModel.countDocuments({ shop: shop });
   }
   async findProductBySlug(slug: string): Promise<Product | null> {
     return await this.productModel
       .findOne({ slug })
       .populate('category')
       .populate('subcategory')
-      .populate({ path: 'shop' })
       .lean()
       .exec();
   }

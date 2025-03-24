@@ -15,7 +15,7 @@ import { PaginationResultDto } from './dto/response/pagination.dto';
 import { Order } from './entities/order.entity';
 import { StripeService } from '../payment/services/stripe.service';
 import { Request, Response } from 'express';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 @Controller('order')
 export class OrderController {
   constructor(
@@ -23,10 +23,11 @@ export class OrderController {
     private readonly stripeService: StripeService,
   ) {}
   @Post('create')
-  async create(@Body() body: CreateOrderDto) {
+  async create(@Body() body: CreateOrderDto, @Req() req: Request) {
+    const userId = req.headers['x-user-id'] as string;
     return {
       message: 'success',
-      point: await this.orderService.createOrder(body),
+      url: await this.orderService.createOrder({ ...body, userId: userId }),
     };
   }
   @Get()
@@ -53,9 +54,21 @@ export class OrderController {
     await this.orderService.webhookStripe(req.rawBody, signature);
     return res.status(200).send('Webhook received');
   }
-  @MessagePattern('order.paid')
+  @EventPattern('order.paid')
   async cashBackOrder(@Payload() body: string[]) {
-    console.log('first');
     await this.orderService.cashBackOrder(body);
+  }
+  @Get('shop')
+  async getOrdersShop(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Req() req: Request,
+  ): Promise<PaginationResultDto<Order>> {
+    const shopId = req.headers['x-shop-id'] as string;
+    return this.orderService.getOrdersShop({
+      limit: Number(limit),
+      page: Number(page),
+      shopId: shopId,
+    });
   }
 }

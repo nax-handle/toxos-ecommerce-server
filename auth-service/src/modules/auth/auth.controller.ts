@@ -1,10 +1,8 @@
 import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
-// import { GrpcMethod } from '@nestjs/microservices';
 import { AuthService } from './services/auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
-// import { AuthGuard } from 'src/common/guards/auth.guard';
 import { Request, Response } from 'express';
 import { User } from '../user/entities/user.entity';
 import { Roles } from 'src/common/decorators/role.decorator';
@@ -13,7 +11,6 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Get()
   @Roles('user')
-  // @UseGuards(AuthGuard)
   authGateway(@Req() req: Request, @Res() res: Response) {
     const user = req['user'] as User;
     res.setHeader('X-User-ID', user.id);

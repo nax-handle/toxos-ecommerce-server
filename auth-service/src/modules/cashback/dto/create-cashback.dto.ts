@@ -22,5 +22,5 @@ export class CreateCashbackDto {
   type: string;
   @IsOptional()
   @IsUUID('4', { each: true, message: 'Mỗi referenceId phải là UUID hợp lệ' })
-  referenceId?: string[];
+  orderIds?: string[];
 }

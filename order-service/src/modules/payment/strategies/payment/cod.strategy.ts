@@ -3,6 +3,6 @@ import { ProcessPaymentDto } from '../../dto/process-payment.dto';
 
 export class CODPaymentStrategy implements PaymentStrategy {
   async processPayment(processPayment: ProcessPaymentDto): Promise<string> {
-    return 'http://localhost:3004/order/success';
+    return process.env.COD_URL || 'http://localhost:3000/order/success';
   }
 }

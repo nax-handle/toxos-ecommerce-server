@@ -11,6 +11,7 @@ import { ProductRepository } from './repositories/product.repository';
 import { ContextProduct } from './states/context.product.state';
 import { InventoryService } from './services/inventory.service';
 import { RabbitMQModule } from 'src/rabbitmq/rabbitmq.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
@@ -19,6 +20,17 @@ import { RabbitMQModule } from 'src/rabbitmq/rabbitmq.module';
     CloudinaryModule,
     CategoryModule,
     ShopModule,
+    ClientsModule.register([
+      {
+        name: 'GRPC_AUTH_SERVICE',
+        transport: Transport.GRPC,
+        options: {
+          url: '0.0.0.0:50050',
+          package: ['shop'],
+          protoPath: ['src/proto/shop.proto'],
+        },
+      },
+    ]),
   ],
   controllers: [ProductController],
   providers: [

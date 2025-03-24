@@ -11,7 +11,7 @@ message ShopsByIds {
 }
 
 message ShopResponse {
-  string _id = 1;
+  string id = 1;
   string name = 2;
   string slug = 3;
   string logo = 4;

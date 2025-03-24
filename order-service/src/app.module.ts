@@ -26,7 +26,7 @@ import { RabbitMQModule } from './modules/rabbitmq/rabbitmq.module';
         name: 'GRPC_AUTH_SERVICE',
         transport: Transport.GRPC,
         options: {
-          url: '0.0.0.0:50051',
+          url: '0.0.0.0:50050',
           package: ['shop'],
           protoPath: ['src/proto/shop.proto'],
         },

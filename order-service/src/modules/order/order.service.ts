@@ -12,7 +12,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
 import { OrderItem } from './entities/order-item.entity';
-import { GetOrdersDto } from './dto/get-orders.dto';
+import { GetOrdersDto } from './dto/request/get-orders.dto';
 import { PaginationResultDto } from './dto/response/pagination.dto';
 import { CartService } from '../cart/cart.service';
 import { PaymentService } from '../payment/payment.service';
@@ -20,6 +20,7 @@ import { firstValueFrom } from 'rxjs';
 import { ProductService } from 'src/interfaces/grpc/product-service.interface';
 import { StripeService } from '../payment/services/stripe.service';
 import { ORDER_STATUS } from 'src/constants/order-status';
+import { GetOrdersShopDto } from './dto/request/get-orders-shop.dto';
 
 @Injectable()
 export class OrderService {
@@ -52,6 +53,7 @@ export class OrderService {
       order.orderItems.map((item) => ({
         ...item,
         userId: createOrderDto.userId,
+        shop: order.shop,
         shopId: order.shop.id,
       })),
     );
@@ -98,6 +100,7 @@ export class OrderService {
         paymentMethod: createOrderDto.paymentMethod,
         totalPrice,
         orderItems: orderItemsWithPrice,
+        address: createOrderDto.address,
       };
     });
     const orders = insertOrders.map((orderData) =>
@@ -136,7 +139,7 @@ export class OrderService {
       })),
     );
     this.client
-      .send('update.stock', { orderIds, items: productsToUpdate })
+      .emit('update.stock', { orderIds, items: productsToUpdate })
       .subscribe({
         error: (err) => {
           //REFUND MONEY
@@ -176,6 +179,27 @@ export class OrderService {
       totalPages: Math.ceil(total / limit),
     };
   }
+  async getOrdersShop(
+    getOrders: GetOrdersShopDto,
+  ): Promise<PaginationResultDto<Order>> {
+    const { limit, page, shopId } = getOrders;
+    const [orders, total] = await this.orderRepository.findAndCount({
+      where: {
+        shopId: shopId,
+      },
+      relations: ['orderItems'],
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdAt: 'DESC' },
+    });
+    return {
+      data: orders,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
   async cashBackOrder(orderIds: string[]) {
     const orders = await this.getOrderByIds(orderIds);
     await this.orderRepository.update(
@@ -188,11 +212,22 @@ export class OrderService {
       const orderCashBack = orderVisitor.getTotalCashBack(cashBackCalculator);
       return total + orderCashBack;
     }, 0);
-    this.client.send('cashback.order', {
-      userId: orders[0].userId,
-      amount: totalCashBack,
-      type: 'order',
-      orderIds,
-    });
+    console.log(totalCashBack);
+    if (totalCashBack > 0) {
+      this.client
+        .emit(
+          'cashback.order',
+          JSON.stringify({
+            userId: orders[0].userId,
+            amount: totalCashBack,
+            type: 'order',
+            orderIds,
+          }),
+        )
+        .subscribe((error) => {
+          //refund
+          console.log(error);
+        });
+    }
   }
 }

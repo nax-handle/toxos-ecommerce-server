@@ -1,43 +1,50 @@
+import { SHIPPING_STATUS } from 'src/constants/shipping-status';
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
+  Entity,
   OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { OrderItem } from './order-item.entity';
 import { ORDER_STATUS } from 'src/constants/order-status';
 import { PAYMENT_METHOD } from 'src/constants/payment-method';
-import { SHIPPING_STATUS } from 'src/constants/shipping-status';
+import { jsonTransformer } from 'src/utils/json-transformer';
+
 @Entity('orders')
 export class Order {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ type: 'varchar', nullable: false, length: 50 })
+  shopId: string;
+  @Column({ type: 'varchar', nullable: false, length: 50 })
   userId: string;
 
-  @Column({ type: 'json', nullable: false })
+  @Column({ type: 'text', nullable: false, transformer: jsonTransformer })
   shop: {
     id: string;
     name: string;
     logo: string;
     slug: string;
   };
-
-  @Column({ type: 'json', nullable: false })
+  @Column({
+    type: 'text',
+    nullable: false,
+    transformer: jsonTransformer,
+  })
   address: {
     street: string;
-    ward?: string;
+    ward: string;
     district: string;
     city: string;
-    state?: string;
+    state: string;
     country: string;
-    postalCode?: string;
-    latitude?: number;
-    longitude?: number;
-    note?: string;
+    postalCode: string;
+    latitude: number;
+    longitude: number;
+    note: string;
   };
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })

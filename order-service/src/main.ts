@@ -17,9 +17,9 @@ async function bootstrap() {
       retryDelay: 3000,
     },
   });
-
+  const PORT = process.env.PORT || 9001;
   await app.startAllMicroservices();
-  await app.listen(process.env.PORT ?? 3002);
-  console.log(`Application running on port ${process.env.PORT ?? 3002}`);
+  await app.listen(PORT);
+  console.log(`Application running on port ${PORT}`);
 }
 bootstrap();

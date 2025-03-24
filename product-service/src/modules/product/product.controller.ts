@@ -12,9 +12,8 @@ import {
 import { ProductService } from './services/product.service';
 import { CreateProductDto } from './dto/request/create-product.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { GrpcMethod, MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, GrpcMethod, Payload } from '@nestjs/microservices';
 import { response, Response } from 'src/utils/response';
-import { Product } from './schemas/product.schema';
 import { GetProductDto } from './dto/request/get-products.dto';
 import { GetProductsOfShopDto } from './dto/request/get-products-of-shop.dto';
 import { Request } from '@nestjs/common';
@@ -41,12 +40,9 @@ export class ProductController {
     return response(data, 'success');
   }
   @Get('details/:slug')
-  async getBySlug(
-    @Param() params: { slug: string },
-  ): Promise<Response<Product>> {
+  async getBySlug(@Param() params: { slug: string }): Promise<Response<any>> {
     const { slug } = params;
-    const data = await this.productService.getBySlug(slug);
-    return response(data, 'success');
+    return response(await this.productService.getBySlug(slug), 'success');
   }
   @Get()
   async getPaginateProducts(
@@ -77,7 +73,8 @@ export class ProductController {
     @Req() req: Request,
   ): Promise<Response<string>> {
     const body = JSON.parse(bodyString) as CreateProductDto;
-    const shopId = req.headers['x-user-id'] as string;
+    const shopId = req.headers['x-shop-id'] as string;
+    console.log(shopId);
     await this.productService.createProduct({
       ...body,
       files: files,
@@ -91,7 +88,8 @@ export class ProductController {
     @Req() req: Request,
   ): Promise<Response<PaginatedProductResponse>> {
     const { page = 1, size = 10 } = query;
-    const shopId = req.headers['x-user-id'] as string;
+    const shopId = req.headers['x-shop-id'] as string;
+    console.log(shopId);
     const data = await this.productService.getProductsOfShop({
       ...query,
       page: page,
@@ -122,7 +120,7 @@ export class ProductController {
     const items = await this.productService.updateStock(body);
     return { items: items };
   }
-  @MessagePattern('update.stock')
+  @EventPattern('update.stock')
   async updateStock(@Payload() data: UpdateStockDto) {
     await this.productService.updateStock(data);
   }

@@ -3,7 +3,7 @@ import { CashbackService } from './cashback.service';
 import { CreateCashbackDto } from './dto/create-cashback.dto';
 import { Request } from 'express';
 import { User } from '../user/entities/user.entity';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, Payload } from '@nestjs/microservices';
 import { Roles } from 'src/common/decorators/role.decorator';
 @Controller('cashback')
 export class CashbackController {
@@ -20,11 +20,12 @@ export class CashbackController {
       userId: user.id,
     });
   }
-  @MessagePattern('cashback.order')
-  create(@Payload() createCashbackDto: CreateCashbackDto) {
-    return this.cashbackService.create({
-      ...createCashbackDto,
-    });
+  @EventPattern('cashback.order')
+  create(@Payload() createCashbackDto: string) {
+    console.log('cash back cooking!');
+    return this.cashbackService.create(
+      JSON.parse(createCashbackDto) as CreateCashbackDto,
+    );
   }
   @Get()
   @Roles('user')

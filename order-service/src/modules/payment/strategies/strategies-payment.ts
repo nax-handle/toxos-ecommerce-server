@@ -16,6 +16,7 @@ export class PaymentStrategyFactory {
   ) {
     this.strategies = {
       stripe: this.stripeStrategy,
+      cod: this.codStrategy,
     };
   }
 

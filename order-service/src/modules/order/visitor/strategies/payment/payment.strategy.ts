@@ -1,8 +1,7 @@
 import { PAYMENT_RATING } from 'src/constants/cashback-rating';
 import { Order } from 'src/modules/order/entities/order.entity';
-export interface PaymentStrategy {
-  calculate(orderItem: Order): number;
-}
+import { PaymentStrategy } from './strategy.interface';
+
 export class PointerWalletPayment implements PaymentStrategy {
   calculate(order: Order): number {
     return order.totalPrice * PAYMENT_RATING.POINTER_WALLET;
@@ -20,3 +19,5 @@ export class DefaultPayment implements PaymentStrategy {
     return order.totalPrice * 0;
   }
 }
+export { PaymentStrategy };
+

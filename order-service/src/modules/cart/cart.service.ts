@@ -47,10 +47,7 @@ export class CartService implements OnModuleInit {
     const [productMap, shopMap] = await Promise.all([
       new Map(productsResponse.items.map((product) => [product._id, product])),
       new Map(
-        shopsResponse.shops.map((shop) => [
-          shop._id,
-          { ...shop, products: [] },
-        ]),
+        shopsResponse.shops.map((shop) => [shop.id, { ...shop, products: [] }]),
       ),
     ]);
     const shopList = shopIds.map((shopId) => ({

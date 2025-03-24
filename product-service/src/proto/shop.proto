@@ -4,6 +4,12 @@ package shop;
 
 service ShopService {
   rpc FindMany (ShopsByIds) returns (ShopsResponse);
+  rpc FindOne (ShopById) returns (ShopResponse);
+
+}
+
+message ShopById {
+  string id = 1;
 }
 
 message ShopsByIds {
@@ -11,7 +17,7 @@ message ShopsByIds {
 }
 
 message ShopResponse {
-  string _id = 1;
+  string id = 1;
   string name = 2;
   string slug = 3;
   string logo = 4;

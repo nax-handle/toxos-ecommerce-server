@@ -13,14 +13,12 @@ import { ProductRepository } from '../repositories/product.repository';
 import { GetProductsOfShopDto } from '../dto/request/get-products-of-shop.dto';
 import { DeleteProductDto } from '../dto/request/delete-product.dtot';
 import { PRODUCT_STATUS } from 'src/common/constants/product-status';
-// import { ContextProduct } from '../states/context.product.state';
 import { CheckStockDto } from '../dto/request/check-stock.dto';
 import { InventoryService } from './inventory.service';
 import { PaginatedProductResponse } from '../dto/response/paginated-product-response.dto';
 import { CheckStockAndPriceDto } from '../dto/response/check-stock-and-price.dto';
 import { UpdateStockDto } from '../dto/request/update-stock.dto';
 import { ClientProxy } from '@nestjs/microservices';
-
 @Injectable()
 export class ProductService {
   constructor(
@@ -30,9 +28,9 @@ export class ProductService {
     private readonly productRepository: ProductRepository,
     // private readonly contextProduct: ContextProduct,
     private readonly inventoryService: InventoryService,
-
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
   ) {}
+
   async createProduct(createProductDto: CreateProductDto): Promise<void> {
     const { subcategoryId, title, files } = createProductDto;
     const subcategory =
@@ -156,7 +154,8 @@ export class ProductService {
       //   orderIds: updateStockList.orderIds,
       // });
     }
-    this.client.send('order.paid', updateStockList.orderIds).subscribe({
+    console.log(updateStockList.orderIds);
+    this.client.emit('order.paid', updateStockList.orderIds).subscribe({
       error: (err) => {
         //refund
         console.error('Failed to send message:', err);

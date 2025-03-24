@@ -3,10 +3,7 @@ import {
   DefaultCashBackStrategy,
   MensFashionCashBackStrategy,
 } from './category.strategy';
-
-export interface CashBackStrategy {
-  calculate(orderItem: OrderItem): number;
-}
+import { CashBackStrategy } from './strategy.interface';
 
 export class CategoryStrategyFactory {
   private static strategies: Map<string, CashBackStrategy> = new Map([

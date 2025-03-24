@@ -95,9 +95,11 @@ export class RedisService {
   ): Promise<void> {
     if (!removeItemsFromCart.length) return;
     const pipeline = this.redis.pipeline();
+    console.log(removeItemsFromCart);
     removeItemsFromCart.forEach((item) =>
       pipeline.hdel(
-        `cart:${item.userId}:${item.shopId},${item.productId}:${item.variantId}`,
+        `cart:${item.userId}:${item.shopId}`,
+        `${item.productId}:${item.variantId}`,
       ),
     );
     await pipeline.exec();

@@ -2,7 +2,7 @@ import { BadGatewayException, Injectable } from '@nestjs/common';
 import { RedisService } from 'src/database/redis/redis.service';
 import Stripe from 'stripe';
 import { StripeConfig } from 'src/configs/stripe.config';
-import { WebhookHandlerRegistry } from '../strategies/strategies-stripe';
+import { WebhookHandlerFactory } from '../factories/stripe/handle-event-stripe.factory';
 
 @Injectable()
 export class StripeService {
@@ -11,7 +11,7 @@ export class StripeService {
   constructor(
     private readonly redisService: RedisService,
     private stripeConfig: StripeConfig,
-    private webhookHandlerRegistry: WebhookHandlerRegistry,
+    private webhookHandlerFactory: WebhookHandlerFactory,
   ) {
     this.stripe = new Stripe(
       stripeConfig.getConfig().stripeSecretKey as string,
@@ -42,7 +42,7 @@ export class StripeService {
           },
         ],
         mode: 'payment',
-        success_url: `${this.stripeConfig.getConfig().stripeSuccessUrl as string}/success?orderIds=${JSON.stringify(orderIds)}`,
+        success_url: `${this.stripeConfig.getConfig().stripeSuccessUrl as string}/checkout/success`,
         cancel_url: `${this.stripeConfig.getConfig().stripeCancelUrl}/cancel`,
       });
 
@@ -63,7 +63,7 @@ export class StripeService {
     } catch (err) {
       throw new BadGatewayException(err.message);
     }
-    const handler = this.webhookHandlerRegistry.getHandler(event.type);
+    const handler = this.webhookHandlerFactory.createHandler(event.type);
     return handler?.handle(event);
   }
 }
