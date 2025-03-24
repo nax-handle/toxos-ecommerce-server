@@ -8,6 +8,8 @@ import {
   Res,
   Headers,
   RawBodyRequest,
+  Param,
+  Patch,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -70,5 +72,23 @@ export class OrderController {
       page: Number(page),
       shopId: shopId,
     });
+  }
+  @Get('shop/:id')
+  async getOrderShopDetails(
+    @Param() params: { id: string },
+    @Req() req: Request,
+  ): Promise<Order> {
+    const shopId = req.headers['x-shop-id'] as string;
+    const orderId = params.id;
+    return this.orderService.getOrderShopDetails(shopId, orderId);
+  }
+  @Patch('shop/packed/:id')
+  async setOrderPackedStatus(
+    @Param() params: { id: string },
+    @Req() req: Request,
+  ): Promise<Order> {
+    const shopId = req.headers['x-shop-id'] as string;
+    const orderId = params.id;
+    return this.orderService.setOrderPackedStatus(shopId, orderId);
   }
 }

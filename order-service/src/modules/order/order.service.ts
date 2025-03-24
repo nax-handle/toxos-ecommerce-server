@@ -21,6 +21,7 @@ import { ProductService } from 'src/interfaces/grpc/product-service.interface';
 import { StripeService } from '../payment/services/stripe.service';
 import { ORDER_STATUS } from 'src/constants/order-status';
 import { GetOrdersShopDto } from './dto/request/get-orders-shop.dto';
+import { SHIPPING_STATUS } from 'src/constants/shipping-status';
 
 @Injectable()
 export class OrderService {
@@ -179,27 +180,7 @@ export class OrderService {
       totalPages: Math.ceil(total / limit),
     };
   }
-  async getOrdersShop(
-    getOrders: GetOrdersShopDto,
-  ): Promise<PaginationResultDto<Order>> {
-    const { limit, page, shopId } = getOrders;
-    const [orders, total] = await this.orderRepository.findAndCount({
-      where: {
-        shopId: shopId,
-      },
-      relations: ['orderItems'],
-      skip: (page - 1) * limit,
-      take: limit,
-      order: { createdAt: 'DESC' },
-    });
-    return {
-      data: orders,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
-  }
+
   async cashBackOrder(orderIds: string[]) {
     const orders = await this.getOrderByIds(orderIds);
     await this.orderRepository.update(
@@ -229,5 +210,45 @@ export class OrderService {
           console.log(error);
         });
     }
+  }
+  async getOrdersShop(
+    getOrders: GetOrdersShopDto,
+  ): Promise<PaginationResultDto<Order>> {
+    const { limit, page, shopId } = getOrders;
+    const [orders, total] = await this.orderRepository.findAndCount({
+      where: {
+        shopId: shopId,
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdAt: 'DESC' },
+    });
+    return {
+      data: orders,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+  async getOrderShopDetails(shopId: string, orderId: string): Promise<Order> {
+    const order = await this.orderRepository.findOne({
+      where: { shopId: shopId, id: orderId },
+      relations: ['orderItems'],
+    });
+    if (!order) throw new BadRequestException('Không tìm thấy order');
+    return order;
+  }
+  async setOrderPackedStatus(shopId: string, orderId: string): Promise<Order> {
+    const order = await this.getOrderShopDetails(shopId, orderId);
+    if (
+      order.status !== ORDER_STATUS.COD_PENDING &&
+      order.status !== ORDER_STATUS.PAID
+    ) {
+      throw new BadRequestException('Cập nhật trạng thái gói hàng thất bại');
+    }
+    order.shippingStatus = SHIPPING_STATUS.PACKED;
+    await this.orderRepository.save(order);
+    return order;
   }
 }

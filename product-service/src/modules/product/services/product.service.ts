@@ -154,13 +154,11 @@ export class ProductService {
       //   orderIds: updateStockList.orderIds,
       // });
     }
-    console.log(updateStockList.orderIds);
     this.client.emit('order.paid', updateStockList.orderIds).subscribe({
       error: (err) => {
         //refund
         console.error('Failed to send message:', err);
       },
     });
-    console.log('send');
   }
 }
