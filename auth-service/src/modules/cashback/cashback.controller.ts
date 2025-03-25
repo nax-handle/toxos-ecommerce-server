@@ -15,7 +15,7 @@ export class CashbackController {
       JSON.parse(createCashbackDto) as CreateCashbackDto,
     );
   }
-  @Get()
+  @Get('get-histories')
   @Roles('user')
   findAll(@Req() req: Request) {
     const user = req['user'] as User;
