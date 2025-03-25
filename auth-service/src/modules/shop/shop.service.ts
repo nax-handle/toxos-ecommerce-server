@@ -20,12 +20,11 @@ export class ShopService {
     const data = this.shopRepository.create(registerShopDto);
     return await this.shopRepository.save(data);
   }
-  async getShop(user: User): Promise<Shop> {
+  async getShop(user: User): Promise<Shop | null> {
     const shop = await this.shopRepository.findOne({
-      where: { user: { id: user.id } },
+      where: { user: user },
       relations: ['user'],
     });
-    if (!shop) throw new NotFoundException();
     return shop;
   }
   async getShopById(id: string): Promise<Shop> {

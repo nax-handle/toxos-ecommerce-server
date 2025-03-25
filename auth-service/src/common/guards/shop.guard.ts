@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -22,12 +23,14 @@ export class ShopGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     const payload = await this.tokenService.verifyToken(token, 'access');
-    request['user'] = payload;
     const user = await this.userService.findUserById(
       payload.id,
       'Unauthorized',
     );
+    if (!user) throw new UnauthorizedException();
+    request['user'] = user;
     const shop = await this.shopService.getShop(user);
+    if (!shop) throw new ForbiddenException();
     request['shop'] = shop;
     return true;
   }
