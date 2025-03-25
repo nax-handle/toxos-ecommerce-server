@@ -13,7 +13,7 @@ export class Product {
   @Prop({ required: true })
   title: string;
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true, unique: true, index: true })
   // @Transform(({ value }: { value: Product }) => getSlug(value.title))
   slug: string;
 

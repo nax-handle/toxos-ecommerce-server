@@ -5,13 +5,13 @@ import { ConfigService } from '@nestjs/config';
 @Module({
   providers: [
     {
-      provide: 'RMQ_SERVICE',
+      provide: 'RMQ_AUTH',
       useFactory: (configService: ConfigService) => {
         return ClientProxyFactory.create({
           transport: Transport.RMQ,
           options: {
             urls: [configService.get('RMQ_URL')],
-            queue: configService.get('RMQ_QUEUE'),
+            queue: 'auth',
             queueOptions: { durable: false },
           },
         });
@@ -19,6 +19,6 @@ import { ConfigService } from '@nestjs/config';
       inject: [ConfigService],
     },
   ],
-  exports: ['RMQ_SERVICE'],
+  exports: ['RMQ_AUTH'],
 })
 export class RabbitMQModule {}

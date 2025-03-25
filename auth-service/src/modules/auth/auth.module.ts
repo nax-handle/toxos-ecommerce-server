@@ -15,11 +15,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmailLoginStrategy } from './strategies/email-login.strategy';
 import { GoogleLoginStrategy } from './strategies/google-login.strategy';
 import { FacebookLoginStrategy } from './strategies/facebook-login.strategy';
+import { RabbitMQModule } from '../rmq/rmq.module';
 @Module({
   imports: [
     UserModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forFeature([User]),
+    RabbitMQModule,
   ],
   controllers: [AuthController],
   providers: [

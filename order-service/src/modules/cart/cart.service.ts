@@ -66,7 +66,7 @@ export class CartService implements OnModuleInit {
     return shopList;
   }
 
-  async removeFromCart(removeFromCart: AddToCartDto): Promise<void> {
+  async removeFromCart(removeFromCart: RemoveItemDto): Promise<void> {
     await this.redisService.removeFromCart(removeFromCart);
   }
   async updateItemCart(updateItemCart: UpdateItemCartDto): Promise<void> {

@@ -10,8 +10,8 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
-  app.useGlobalPipes(new ValidationPipe());
   await app.listen(process.env.PORT ?? 3003);
+  // Microservice gRPC
   const grpcApp = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
@@ -23,17 +23,25 @@ async function bootstrap() {
       },
     },
   );
-  app.connectMicroservice({
-    transport: Transport.RMQ,
-    options: {
-      urls: [process.env.RMQ_URL],
-      queue: process.env.RMQ_QUEUE,
-      queueOptions: {
-        durable: false,
+  app.useGlobalPipes(new ValidationPipe());
+
+  await grpcApp.listen();
+
+  // Microservice RabbitMQ
+  const rmqApp = await NestFactory.createMicroservice<MicroserviceOptions>(
+    AppModule,
+    {
+      transport: Transport.RMQ,
+      options: {
+        urls: [process.env.RMQ_URL || ''],
+        queue: 'product_queue',
+        queueOptions: {
+          durable: false,
+        },
       },
     },
-  });
+  );
+  await rmqApp.listen();
   await app.startAllMicroservices();
-  await grpcApp.listen();
 }
 bootstrap();

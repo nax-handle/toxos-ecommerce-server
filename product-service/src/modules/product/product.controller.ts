@@ -120,9 +120,13 @@ export class ProductController {
     const items = await this.productService.updateStock(body);
     return { items: items };
   }
-  @EventPattern('update.stock')
+  @EventPattern('update_stock')
   async updateStock(@Payload() data: UpdateStockDto) {
     await this.productService.updateStock(data);
+  }
+  @EventPattern('test_order_ne')
+  testEvent(@Payload() data: any) {
+    console.log(data);
   }
   // @MessagePattern('reverse.stock')
   // async reverseStock(@Body() body: CheckStockDto[]) {

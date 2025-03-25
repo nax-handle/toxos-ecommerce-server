@@ -71,7 +71,7 @@ export class RedisService {
     await this.redis.hincrby(key, itemKey, quantity);
   }
 
-  async removeFromCart(addToCart: AddToCartDto): Promise<void> {
+  async removeFromCart(addToCart: RemoveItemDto): Promise<void> {
     const { variantId, shopId, productId, userId } = addToCart;
     const key = `cart:${userId}:${shopId}`;
     const itemKey = `${productId}:${variantId}`;

@@ -15,15 +15,12 @@ import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { PaginationResultDto } from './dto/response/pagination.dto';
 import { Order } from './entities/order.entity';
-import { StripeService } from '../payment/services/stripe.service';
 import { Request, Response } from 'express';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
+import { GetOrdersDto } from './dto/request/get-orders.dto';
 @Controller('order')
 export class OrderController {
-  constructor(
-    private readonly orderService: OrderService,
-    private readonly stripeService: StripeService,
-  ) {}
+  constructor(private readonly orderService: OrderService) {}
   @Post('create')
   async create(@Body() body: CreateOrderDto, @Req() req: Request) {
     const userId = req.headers['x-user-id'] as string;
@@ -32,16 +29,19 @@ export class OrderController {
       url: await this.orderService.createOrder({ ...body, userId: userId }),
     };
   }
-  @Get()
+  @Get('orders')
   async getOrders(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Query() data: GetOrdersDto,
+    @Req() req: Request,
   ): Promise<PaginationResultDto<Order>> {
-    const userId = 'user456';
+    const userId = req.headers['x-user-id'] as string;
+    const { limit = 10, page = 1, status, shippingStatus } = data;
     return this.orderService.getOrders({
-      limit: Number(limit),
-      page: Number(page),
+      limit,
+      page,
+      status,
       userId: userId,
+      shippingStatus,
     });
   }
   @Post('webhook/stripe')
@@ -90,5 +90,9 @@ export class OrderController {
     const shopId = req.headers['x-shop-id'] as string;
     const orderId = params.id;
     return this.orderService.setOrderPackedStatus(shopId, orderId);
+  }
+  @Post('test')
+  async test() {
+    return this.orderService.test();
   }
 }

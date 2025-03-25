@@ -1,8 +1,6 @@
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class UpdateItemCartDto {
-  @IsString()
-  @IsNotEmpty()
   userId: string;
 
   @IsString()
@@ -16,7 +14,7 @@ export class UpdateItemCartDto {
   @IsOptional()
   @IsString()
   oldVariantId?: string;
-  
+
   @IsOptional()
   @IsString()
   newVariantId?: string;

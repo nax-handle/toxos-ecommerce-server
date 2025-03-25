@@ -12,7 +12,6 @@ export class AddToCartDto {
   variantId?: string;
 
   @IsInt()
-  @Min(1)
   quantity: number;
 
   @IsString()

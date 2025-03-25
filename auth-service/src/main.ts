@@ -4,7 +4,11 @@ import { ConfigService } from '@nestjs/config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  app.enableCors({
+    origin: ['http://localhost'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
   const grpcApp = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
@@ -20,7 +24,7 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       urls: [process.env.RMQ_URL],
-      queue: process.env.RMQ_QUEUE,
+      queue: 'auth_queue',
       queueOptions: { durable: false },
       retryAttempts: 5,
       retryDelay: 3000,

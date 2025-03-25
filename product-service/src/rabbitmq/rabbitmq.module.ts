@@ -1,18 +1,14 @@
-import { Module, Logger } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 
 @Module({
   providers: [
     {
-      provide: 'RMQ_SERVICE',
+      provide: 'RMQ_ORDER',
       useFactory: (configService: ConfigService) => {
         const rmqUrl = configService.get('RMQ_URL') as string;
-        const queue = configService.get('RMQ_QUEUE') as string;
-        Logger.log(
-          `Connecting to RabbitMQ at ${rmqUrl}, queue: ${queue}`,
-          'RabbitMQModule',
-        );
+        const queue = 'order_queue';
         return ClientProxyFactory.create({
           transport: Transport.RMQ,
           options: {
@@ -25,6 +21,6 @@ import { ConfigService } from '@nestjs/config';
       inject: [ConfigService],
     },
   ],
-  exports: ['RMQ_SERVICE'],
+  exports: ['RMQ_ORDER'],
 })
 export class RabbitMQModule {}

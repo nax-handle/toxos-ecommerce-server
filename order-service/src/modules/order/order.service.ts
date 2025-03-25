@@ -27,7 +27,8 @@ import { SHIPPING_STATUS } from 'src/constants/shipping-status';
 export class OrderService {
   private productService: ProductService;
   constructor(
-    @Inject('RMQ_SERVICE') private readonly client: ClientProxy,
+    @Inject('RMQ_PRODUCT') private readonly clientRmqProduct: ClientProxy,
+    @Inject('RMQ_AUTH') private readonly clientRmqAuth: ClientProxy,
     @Inject('GRPC_PRODUCT_SERVICE') private clientProduct: ClientGrpc,
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
@@ -129,25 +130,6 @@ export class OrderService {
     }
   }
 
-  async webhookStripe(body: Buffer, signature: string) {
-    const orderIds = await this.stripeService.handleWebhook(body, signature);
-    const orders = await this.getOrderByIds(orderIds);
-    const productsToUpdate = orders.flatMap((order) =>
-      order.orderItems.map((item) => ({
-        productId: item.productId,
-        variantId: item.variantId,
-        quantity: item.quantity,
-      })),
-    );
-    this.client
-      .emit('update.stock', { orderIds, items: productsToUpdate })
-      .subscribe({
-        error: (err) => {
-          //REFUND MONEY
-          console.error('Failed to send message:', err);
-        },
-      });
-  }
   async updateOrdersPaid(orderIds: string[]) {
     await this.orderRepository.update(
       { id: In(orderIds) },
@@ -163,15 +145,19 @@ export class OrderService {
   async getOrders(
     getOrders: GetOrdersDto,
   ): Promise<PaginationResultDto<Order>> {
-    const { limit, page, userId } = getOrders;
+    const { limit, page, userId, status, shippingStatus } = getOrders;
     const [orders, total] = await this.orderRepository.findAndCount({
       where: {
         userId: userId,
+        ...(status !== undefined ? { status } : {}),
+        ...(shippingStatus !== undefined ? { shippingStatus } : {}),
       },
+      relations: ['orderItems'],
       skip: (page - 1) * limit,
       take: limit,
       order: { createdAt: 'DESC' },
     });
+    console.log(orders);
     return {
       data: orders,
       total,
@@ -195,9 +181,9 @@ export class OrderService {
     }, 0);
     console.log(totalCashBack);
     if (totalCashBack > 0) {
-      this.client
+      this.clientRmqAuth
         .emit(
-          'cashback.order',
+          'cashback_order',
           JSON.stringify({
             userId: orders[0].userId,
             amount: totalCashBack,
@@ -210,6 +196,25 @@ export class OrderService {
           console.log(error);
         });
     }
+  }
+  async webhookStripe(body: Buffer, signature: string) {
+    const orderIds = await this.stripeService.handleWebhook(body, signature);
+    const orders = await this.getOrderByIds(orderIds);
+    const productsToUpdate = orders.flatMap((order) =>
+      order.orderItems.map((item) => ({
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.quantity,
+      })),
+    );
+    this.clientRmqProduct
+      .emit('update_stock', { orderIds, items: productsToUpdate })
+      .subscribe({
+        error: (err) => {
+          //REFUND MONEY
+          console.error('Failed to send message:', err);
+        },
+      });
   }
   async getOrdersShop(
     getOrders: GetOrdersShopDto,
@@ -250,5 +255,9 @@ export class OrderService {
     order.shippingStatus = SHIPPING_STATUS.PACKED;
     await this.orderRepository.save(order);
     return order;
+  }
+  async test() {
+    console.log('first');
+    this.clientRmqProduct.emit('test_order_ne', { test: '123' });
   }
 }
