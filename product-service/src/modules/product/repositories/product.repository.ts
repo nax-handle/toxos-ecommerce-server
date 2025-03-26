@@ -28,6 +28,14 @@ export class ProductRepository {
       .limit(size)
       .exec();
   }
+  countProducts(getProductDto: GetProductDto): Promise<number> {
+    const { page, size, filter = {} } = getProductDto;
+    return this.productModel
+      .countDocuments(filter)
+      .skip((page - 1) * size)
+      .limit(size)
+      .exec();
+  }
   getProductsOfShop(
     getProductsOfShop: GetProductsOfShopDto,
   ): Promise<Product[]> {

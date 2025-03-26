@@ -20,6 +20,7 @@ import { Request } from '@nestjs/common';
 import { CheckStockDto } from './dto/request/check-stock.dto';
 import { PaginatedProductResponse } from './dto/response/paginated-product-response.dto';
 import { UpdateStockDto } from './dto/request/update-stock.dto';
+import { ShopId } from 'src/common/decorator/shop.decorator';
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
@@ -71,9 +72,10 @@ export class ProductController {
       // variant_images?: Express.Multer.File[];
     },
     @Req() req: Request,
+    @ShopId() shopId: string,
   ): Promise<Response<string>> {
     const body = JSON.parse(bodyString) as CreateProductDto;
-    const shopId = req.headers['x-shop-id'] as string;
+    // const shopId = req.headers['x-shop-id'] as string;
     console.log(shopId);
     await this.productService.createProduct({
       ...body,
@@ -89,7 +91,6 @@ export class ProductController {
   ): Promise<Response<PaginatedProductResponse>> {
     const { page = 1, size = 10 } = query;
     const shopId = req.headers['x-shop-id'] as string;
-    console.log(shopId);
     const data = await this.productService.getProductsOfShop({
       ...query,
       page: page,
@@ -115,18 +116,9 @@ export class ProductController {
     const items = await this.productService.checkStockAndPrice(data.products);
     return items;
   }
-  @Post('test')
-  async test(@Body() body: UpdateStockDto) {
-    const items = await this.productService.updateStock(body);
-    return { items: items };
-  }
   @EventPattern('update_stock')
   async updateStock(@Payload() data: UpdateStockDto) {
     await this.productService.updateStock(data);
-  }
-  @EventPattern('test_order_ne')
-  testEvent(@Payload() data: any) {
-    console.log(data);
   }
   // @MessagePattern('reverse.stock')
   // async reverseStock(@Body() body: CheckStockDto[]) {

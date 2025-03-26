@@ -19,6 +19,7 @@ import { PaginatedProductResponse } from '../dto/response/paginated-product-resp
 import { CheckStockAndPriceDto } from '../dto/response/check-stock-and-price.dto';
 import { UpdateStockDto } from '../dto/request/update-stock.dto';
 import { ClientProxy } from '@nestjs/microservices';
+import { CacheProxy } from 'src/common/cache/cache';
 @Injectable()
 export class ProductService {
   constructor(
@@ -28,6 +29,7 @@ export class ProductService {
     private readonly productRepository: ProductRepository,
     // private readonly contextProduct: ContextProduct,
     private readonly inventoryService: InventoryService,
+    private readonly cacheProxy: CacheProxy,
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
   ) {}
 
@@ -63,10 +65,15 @@ export class ProductService {
   //   return Promise.resolve(newVariants);
   // }
   async getBySlug(slug: string): Promise<Product> {
-    const product = await this.productRepository.findProductBySlug(slug);
-    if (!product) {
-      throw new BadRequestException('Product not found');
-    }
+    const product = await this.cacheProxy.getOrSet<Product>(
+      `product:${slug}`,
+      async () => {
+        const result = await this.productRepository.findProductBySlug(slug);
+        if (!result) throw new Error('Product not found');
+        return result;
+      },
+      10,
+    );
     return product;
   }
   async deleteById(_id: string): Promise<void> {
@@ -92,7 +99,7 @@ export class ProductService {
   ): Promise<PaginatedProductResponse> {
     const [products, productCount] = await Promise.all([
       this.productRepository.getProducts(getProductDto),
-      this.productModel.countDocuments().exec(),
+      this.productRepository.countProducts(getProductDto),
     ]);
     return {
       total: productCount,

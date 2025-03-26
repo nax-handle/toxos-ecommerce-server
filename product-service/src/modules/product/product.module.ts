@@ -12,6 +12,8 @@ import { ContextProduct } from './states/context.product.state';
 import { InventoryService } from './services/inventory.service';
 import { RabbitMQModule } from 'src/rabbitmq/rabbitmq.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { CacheProxy } from 'src/common/cache/cache';
+import { RedisService } from 'src/databases/redis/redis.service';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
@@ -39,6 +41,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     ProductRepository,
     ContextProduct,
     InventoryService,
+    CacheProxy,
+    RedisService,
   ],
   exports: [ProductService],
 })
