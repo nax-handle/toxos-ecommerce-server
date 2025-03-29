@@ -92,7 +92,7 @@ export class OrderController {
     return this.orderService.setOrderPackedStatus(shopId, orderId);
   }
   @Post('test')
-  async test() {
-    return this.orderService.test();
+  async test(@Body() Body: { id: string }) {
+    return this.orderService.isReviewAllowed(Body.id);
   }
 }

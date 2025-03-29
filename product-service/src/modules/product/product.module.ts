@@ -14,6 +14,7 @@ import { RabbitMQModule } from 'src/rabbitmq/rabbitmq.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { CacheProxy } from 'src/common/cache/cache';
 import { RedisService } from 'src/databases/redis/redis.service';
+import { ProductFilterBuilder } from './builder/product-filter.builder';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
@@ -43,6 +44,7 @@ import { RedisService } from 'src/databases/redis/redis.service';
     InventoryService,
     CacheProxy,
     RedisService,
+    ProductFilterBuilder,
   ],
   exports: [ProductService],
 })

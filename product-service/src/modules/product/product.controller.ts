@@ -21,6 +21,7 @@ import { CheckStockDto } from './dto/request/check-stock.dto';
 import { PaginatedProductResponse } from './dto/response/paginated-product-response.dto';
 import { UpdateStockDto } from './dto/request/update-stock.dto';
 import { ShopId } from 'src/common/decorator/shop.decorator';
+import { SearchProductDto } from './dto/request/search-product.dto';
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
@@ -47,12 +48,26 @@ export class ProductController {
   }
   @Get()
   async getPaginateProducts(
-    @Param() params: GetProductDto,
+    @Query() queries: GetProductDto,
   ): Promise<Response<PaginatedProductResponse>> {
-    const { page = 1, size = 10 } = params;
+    const { page = 1, size = 10 } = queries;
     const data = await this.productService.getPaginateProducts({
       page: page,
       size: size,
+    });
+    return response(data, 'success');
+  }
+
+  @Get('search')
+  async searchProducts(
+    @Query() queries: SearchProductDto,
+  ): Promise<Response<PaginatedProductResponse>> {
+    const { page = 1, size = 10, keyword } = queries;
+    const data = await this.productService.searchProduct({
+      ...queries,
+      page: page,
+      size: size,
+      keyword,
     });
     return response(data, 'success');
   }

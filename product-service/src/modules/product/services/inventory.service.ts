@@ -16,8 +16,7 @@ export class InventoryService {
     for (const item of checkStockList) {
       const product = productMap.get(item.productId);
       if (!product) continue;
-
-      if (item.variantId) {
+      if (item.variantId !== 'undefined') {
         const variant = product.variants.find(
           (v) => v._id.toString() === item.variantId,
         );
@@ -25,7 +24,9 @@ export class InventoryService {
           outOfStock.push(item);
         }
       } else {
-        if (product.stock < item.quantity) {
+        if (product.variants.length > 0) {
+          outOfStock.push(item);
+        } else if (product.stock < item.quantity) {
           outOfStock.push(item);
         }
       }

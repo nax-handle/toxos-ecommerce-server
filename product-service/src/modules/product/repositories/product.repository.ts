@@ -6,7 +6,7 @@ import { Product, ProductDocument } from '../schemas/product.schema';
 import { GetProductDto } from '../dto/request/get-products.dto';
 import { GetProductsOfShopDto } from '../dto/request/get-products-of-shop.dto';
 import { ObjectId } from 'src/utils/object-id';
-import { DeleteProductDto } from '../dto/request/delete-product.dtot';
+import { DeleteProductDto } from '../dto/request/delete-product.dto';
 import { UpdateStockDto } from '../dto/request/update-stock.dto';
 
 @Injectable()
@@ -21,17 +21,17 @@ export class ProductRepository {
   }
 
   getProducts(getProductDto: GetProductDto): Promise<Product[]> {
-    const { page, size, filter = {} } = getProductDto;
+    const { page, size } = getProductDto;
     return this.productModel
-      .find(filter)
+      .find()
       .skip((page - 1) * size)
       .limit(size)
       .exec();
   }
   countProducts(getProductDto: GetProductDto): Promise<number> {
-    const { page, size, filter = {} } = getProductDto;
+    const { page, size } = getProductDto;
     return this.productModel
-      .countDocuments(filter)
+      .countDocuments()
       .skip((page - 1) * size)
       .limit(size)
       .exec();
@@ -83,8 +83,9 @@ export class ProductRepository {
   async updateStockProducts(
     updateStockList: UpdateStockDto,
   ): Promise<BulkWriteResult> {
+    console.log(updateStockList);
     const bulkOps = updateStockList.items.map((item) => {
-      if (!item.variantId) {
+      if (item.variantId === 'undefined') {
         return {
           updateOne: {
             filter: {

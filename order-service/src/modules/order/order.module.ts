@@ -15,7 +15,6 @@ import { OrderItem } from './entities/order-item.entity';
 import { CartModule } from '../cart/cart.module';
 import { PaymentModule } from '../payment/payment.module';
 import { RabbitMQModule } from 'src/modules/rabbitmq/rabbitmq.module';
-// import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   controllers: [OrderController],
@@ -24,17 +23,6 @@ import { RabbitMQModule } from 'src/modules/rabbitmq/rabbitmq.module';
     CartModule,
     PaymentModule,
     RabbitMQModule,
-    // ClientsModule.register([
-    //   {
-    //     name: 'RMQ_SERVICE_PRODUCT',
-    //     transport: Transport.RMQ,
-    //     options: {
-    //       urls: ['amqp://admin:admin@localhost:5672'],
-    //       queue: 'order-product',
-    //       queueOptions: { durable: false },
-    //     },
-    //   },
-    // ]),
   ],
   providers: [
     OrderService,

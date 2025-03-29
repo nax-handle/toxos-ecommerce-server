@@ -22,6 +22,9 @@ export class Order {
   @Column({ type: 'varchar', nullable: false, length: 50 })
   userId: string;
 
+  @Column({ type: 'boolean', nullable: false, default: true })
+  isReview: boolean;
+
   @Column({ type: 'text', nullable: false, transformer: jsonTransformer })
   shop: {
     id: string;

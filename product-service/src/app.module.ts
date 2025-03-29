@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CategoryModule } from './modules/category/category.module';
 import { ShopModule } from './modules/shop/shop.module';
 import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
+import { ReviewModule } from './modules/review/review.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
     CategoryModule,
     ShopModule,
     RabbitMQModule,
+    ReviewModule,
   ],
 })
 export class AppModule {}

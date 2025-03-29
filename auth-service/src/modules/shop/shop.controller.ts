@@ -1,17 +1,5 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Req, Res, UseGuards } from '@nestjs/common';
 import { ShopService } from './shop.service';
-import { RegisterShopDto } from './dto/register-shop.dto';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { User } from '../user/entities/user.entity';
 import { ShopGuard } from 'src/common/guards/shop.guard';
 import { Shop } from './entities/shop.entity';
 import { Request, Response } from 'express';
@@ -27,15 +15,7 @@ export class ShopController {
     console.log(res.getHeader('x-shop-id'));
     return res.status(200).send();
   }
-  @Post('register')
-  @UseGuards(AuthGuard)
-  registerShop(@Body() registerShopDto: RegisterShopDto, @Req() req: Request) {
-    console.log('a');
-    return this.shopService.registerShop({
-      ...registerShopDto,
-      user: req['user'] as User,
-    });
-  }
+
   @Get()
   @UseGuards(ShopGuard)
   getShop(@Req() req: Request) {

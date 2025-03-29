@@ -4,8 +4,8 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { CashBackCalculator } from './visitor/cash-back.visitor';
-import { OrderVisitor } from './visitor/order.visitor';
+import { CashBackCalculator } from './design-pattern/visitor/cash-back.visitor';
+import { OrderVisitor } from './design-pattern/visitor/order.visitor';
 import { Order } from './entities/order.entity';
 import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -64,6 +64,7 @@ export class OrderService {
       checkResult = await firstValueFrom(
         this.productService.checkStockAndPrice({ products: allProducts }),
       );
+      console.log(checkResult);
     } catch (error) {
       console.error('Error calling gRPC checkStockAndPrice:', error);
       throw new BadRequestException('Unable to verify product stock and price');
@@ -78,7 +79,6 @@ export class OrderService {
         `Price changed for: ${checkResult.items.priceFluctuations.join(', ')}`,
       );
     }
-
     let totalOrders = 0;
     const insertOrders = createOrderDto.orders.map((order) => {
       const orderItemsWithPrice = order.orderItems.map((item) => {
@@ -256,8 +256,22 @@ export class OrderService {
     await this.orderRepository.save(order);
     return order;
   }
-  async test() {
-    console.log('first');
-    this.clientRmqProduct.emit('test_order_ne', { test: '123' });
+  async isReviewAllowed(id: string): Promise<boolean> {
+    const order = await this.orderRepository.findOne({
+      where: {
+        id: id,
+      },
+    });
+    console.log(order);
+
+    if (
+      !(
+        order &&
+        order.shippingStatus === SHIPPING_STATUS.DELIVERED &&
+        order.isReview === true
+      )
+    )
+      return false;
+    return true;
   }
 }

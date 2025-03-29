@@ -22,6 +22,7 @@ export class ShopGuard implements CanActivate {
     if (!token) {
       throw new UnauthorizedException();
     }
+    console.log(token);
     const payload = await this.tokenService.verifyToken(token, 'access');
     const user = await this.userService.findUserById(
       payload.id,

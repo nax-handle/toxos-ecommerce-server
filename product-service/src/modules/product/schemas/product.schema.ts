@@ -47,10 +47,10 @@ export class Product {
   @Prop()
   origin: string;
 
-  @Prop({ required: true })
+  @Prop()
   variantName: string;
 
-  @Prop({ required: true })
+  @Prop()
   optionName: string;
 
   @Prop({ required: true })

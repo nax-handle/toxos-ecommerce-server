@@ -11,7 +11,7 @@ import { CloudinaryService } from '../../cloudinary/cloudinary.service';
 import { GetProductDto } from '../dto/request/get-products.dto';
 import { ProductRepository } from '../repositories/product.repository';
 import { GetProductsOfShopDto } from '../dto/request/get-products-of-shop.dto';
-import { DeleteProductDto } from '../dto/request/delete-product.dtot';
+import { DeleteProductDto } from '../dto/request/delete-product.dto';
 import { PRODUCT_STATUS } from 'src/common/constants/product-status';
 import { CheckStockDto } from '../dto/request/check-stock.dto';
 import { InventoryService } from './inventory.service';
@@ -20,6 +20,8 @@ import { CheckStockAndPriceDto } from '../dto/response/check-stock-and-price.dto
 import { UpdateStockDto } from '../dto/request/update-stock.dto';
 import { ClientProxy } from '@nestjs/microservices';
 import { CacheProxy } from 'src/common/cache/cache';
+import { SearchProductDto } from '../dto/request/search-product.dto';
+import { ProductFilterBuilder } from '../builder/product-filter.builder';
 @Injectable()
 export class ProductService {
   constructor(
@@ -27,9 +29,9 @@ export class ProductService {
     private readonly categoryService: CategoryService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly productRepository: ProductRepository,
-    // private readonly contextProduct: ContextProduct,
     private readonly inventoryService: InventoryService,
     private readonly cacheProxy: CacheProxy,
+    private readonly productFilterBuilder: ProductFilterBuilder,
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
   ) {}
 
@@ -50,7 +52,37 @@ export class ProductService {
       slug: getSlug(title) + randomString(4),
     });
   }
-
+  async searchProduct(
+    searchProduct: SearchProductDto,
+  ): Promise<PaginatedProductResponse> {
+    const { page, size, minPrice, maxPrice, rating, keyword, sortByPrice } =
+      searchProduct;
+    this.productFilterBuilder
+      .withName(keyword)
+      .withPriceGreaterThan(Number(minPrice))
+      .withPriceLessThan(Number(maxPrice))
+      .withRatingGreaterThan(Number(rating));
+    const countPipeline = [
+      ...this.productFilterBuilder.build(),
+      { $count: 'total' },
+    ];
+    this.productFilterBuilder.withPaginate(page, size);
+    this.productFilterBuilder.withSortByPrice(sortByPrice);
+    const pipeline = this.productFilterBuilder.build();
+    const [total, data] = await Promise.all([
+      this.productModel.aggregate(countPipeline).exec() as Promise<
+        { total: number }[]
+      >,
+      this.productModel.aggregate(pipeline).exec(),
+    ]);
+    this.productFilterBuilder.reset();
+    return {
+      total: total[0]?.total,
+      totalPage: Math.ceil(total[0]?.total / size),
+      page,
+      products: data as Product[],
+    };
+  }
   // mapVariantWithImages(
   //   variants: ProductVariantDto[],
   //   images: string[],
@@ -64,6 +96,10 @@ export class ProductService {
   //   }
   //   return Promise.resolve(newVariants);
   // }
+
+  async deleteById(_id: string): Promise<void> {
+    await this.productModel.findByIdAndDelete(ObjectId(_id));
+  }
   async getBySlug(slug: string): Promise<Product> {
     const product = await this.cacheProxy.getOrSet<Product>(
       `product:${slug}`,
@@ -76,24 +112,7 @@ export class ProductService {
     );
     return product;
   }
-  async deleteById(_id: string): Promise<void> {
-    await this.productModel.findByIdAndDelete(ObjectId(_id));
-  }
 
-  async findOne(_id: string): Promise<Product> {
-    const product = await this.productModel.findById(ObjectId(_id));
-    if (!product) throw new BadRequestException('Product not found');
-    return product;
-  }
-
-  async findMany(_ids: string[]): Promise<Product[]> {
-    const objectIds = _ids.map((id) => ObjectId(id));
-    const products = await this.productModel
-      .find({ _id: { $in: objectIds } })
-      .lean()
-      .exec();
-    return products;
-  }
   async getPaginateProducts(
     getProductDto: GetProductDto,
   ): Promise<PaginatedProductResponse> {
@@ -167,5 +186,20 @@ export class ProductService {
         console.error('Failed to send message:', err);
       },
     });
+  }
+
+  async findOne(_id: string): Promise<Product> {
+    const product = await this.productModel.findById(ObjectId(_id));
+    if (!product) throw new BadRequestException('Product not found');
+    return product;
+  }
+
+  async findMany(_ids: string[]): Promise<Product[]> {
+    const objectIds = _ids.map((id) => ObjectId(id));
+    const products = await this.productModel
+      .find({ _id: { $in: objectIds } })
+      .lean()
+      .exec();
+    return products;
   }
 }

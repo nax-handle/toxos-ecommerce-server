@@ -1,4 +1,4 @@
-import { Order } from '../../entities/order.entity';
+import { Order } from '../../../entities/order.entity';
 import { CashBackVisitor, CashBack } from '../visitor.interface';
 
 export class Categories implements CashBack {

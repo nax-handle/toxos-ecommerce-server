@@ -16,12 +16,15 @@ import { EmailLoginStrategy } from './strategies/email-login.strategy';
 import { GoogleLoginStrategy } from './strategies/google-login.strategy';
 import { FacebookLoginStrategy } from './strategies/facebook-login.strategy';
 import { RabbitMQModule } from '../rmq/rmq.module';
+import { GoogleConfig } from 'src/configs/google.config';
+import { ShopModule } from '../shop/shop.module';
 @Module({
   imports: [
     UserModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forFeature([User]),
     RabbitMQModule,
+    ShopModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -37,6 +40,7 @@ import { RabbitMQModule } from '../rmq/rmq.module';
     EmailLoginStrategy,
     GoogleLoginStrategy,
     FacebookLoginStrategy,
+    GoogleConfig,
   ],
 })
 export class AuthModule {}

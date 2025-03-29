@@ -1,5 +1,5 @@
 import { CashBackVisitor } from './visitor.interface';
-import { Order } from '../entities/order.entity';
+import { Order } from '../../entities/order.entity';
 import { CategoryStrategyFactory } from './strategies/category/factory';
 import { PaymentStrategyFactory } from './strategies/payment/factory';
 export class CashBackCalculator implements CashBackVisitor {
