@@ -12,6 +12,7 @@ import { RoleModule } from './modules/role/role.module';
 import { ShopModule } from './modules/shop/shop.module';
 import { CashbackModule } from './modules/cashback/cashback.module';
 import { RabbitMQModule } from './modules/rmq/rmq.module';
+import { ReportModule } from './modules/report/report.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -28,6 +29,7 @@ import { RabbitMQModule } from './modules/rmq/rmq.module';
     ShopModule,
     CashbackModule,
     RabbitMQModule,
+    ReportModule,
   ],
   controllers: [AppController],
   providers: [AppService],

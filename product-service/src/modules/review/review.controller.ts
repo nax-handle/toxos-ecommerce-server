@@ -4,12 +4,14 @@ import { ReviewProductDto } from './dto/review-product.dto';
 import { StatsReviewsResponse } from './dto/response/state-response.dto';
 import { ProductReviewsResponse } from './dto/response/review-response.dto';
 import { UserId } from 'src/common/decorator/user.decorator';
+import { MessageResponse } from 'src/common/decorator/message-response.decorator';
 
 @Controller('review')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   @Post('product')
+  @MessageResponse('Đánh giá thành công')
   reviewProduct(
     @Body() reviewProduct: ReviewProductDto[],
     @UserId() userId: string,

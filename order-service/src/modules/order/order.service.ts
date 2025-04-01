@@ -262,8 +262,6 @@ export class OrderService {
         id: id,
       },
     });
-    console.log(order);
-
     if (
       !(
         order &&

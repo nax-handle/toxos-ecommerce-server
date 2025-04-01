@@ -26,6 +26,7 @@ import { SearchProductDto } from './dto/request/search-product.dto';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
   //Customer
+
   @Get('shop/:shopId')
   async getProductsOfShop(
     @Query() query: GetProductsOfShopDto,

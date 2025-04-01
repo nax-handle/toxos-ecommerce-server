@@ -83,20 +83,6 @@ export class ProductService {
       products: data as Product[],
     };
   }
-  // mapVariantWithImages(
-  //   variants: ProductVariantDto[],
-  //   images: string[],
-  // ): Promise<ProductVariantDto[]> {
-  //   const newVariants: ProductVariantDto[] = [];
-  //   for (let i = 0; i < variants.length; i++) {
-  //     newVariants.push({
-  //       ...variants[i],
-  //       image: images[i],
-  //     });
-  //   }
-  //   return Promise.resolve(newVariants);
-  // }
-
   async deleteById(_id: string): Promise<void> {
     await this.productModel.findByIdAndDelete(ObjectId(_id));
   }
