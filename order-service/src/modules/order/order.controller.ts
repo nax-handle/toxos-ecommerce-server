@@ -16,8 +16,14 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { PaginationResultDto } from './dto/response/pagination.dto';
 import { Order } from './entities/order.entity';
 import { Request, Response } from 'express';
-import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
+import {
+  EventPattern,
+  GrpcMethod,
+  MessagePattern,
+  Payload,
+} from '@nestjs/microservices';
 import { GetOrdersDto } from './dto/request/get-orders.dto';
+import { GetReportShopDto } from './dto/request/get-report-shop.dto';
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
@@ -94,5 +100,12 @@ export class OrderController {
   @Post('test')
   async test(@Body() Body: { id: string }) {
     return this.orderService.isReviewAllowed(Body.id);
+  }
+  @GrpcMethod('OrderService', 'GetOrdersByShopId')
+  async getOrdersByShopId(data: GetReportShopDto) {
+    console.log(data);
+    const orders = await this.orderService.getOrdersByShopId(data);
+    console.log(orders);
+    return { orders };
   }
 }

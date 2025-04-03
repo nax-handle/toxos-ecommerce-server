@@ -10,17 +10,23 @@ import {
   ReviewDistribution,
 } from './dto/response/state-response.dto';
 import { ProductReviewsResponse } from './dto/response/review-response.dto';
+import { ProductService } from '../product/services/product.service';
+import { Observer } from './observer/observer';
 
 @Injectable()
 export class ReviewService {
   constructor(
     @InjectModel(Review.name)
     private readonly reviewModel: Model<ReviewDocument>,
+    private readonly productService: ProductService,
+    private readonly observer: Observer,
   ) {}
   async reviewProduct(
     reviewProduct: ReviewProductDto[],
     userId: string,
   ): Promise<void> {
+    const { shopId } = reviewProduct[0];
+    await this.productService.getProductOfShop(shopId);
     const result = true;
     if (!result)
       throw new BadRequestException(
@@ -33,6 +39,7 @@ export class ReviewService {
       userId,
     }));
     await this.reviewModel.insertMany(reviews);
+    // this.observer.observerReview();
   }
   async deleteReview(id: string, userId: string): Promise<void> {
     const review = await this.reviewModel.findOne({
@@ -42,11 +49,6 @@ export class ReviewService {
     if (!review) throw new BadRequestException('Không tìm thấy đánh giá');
     await review.deleteOne();
   }
-  // async replyReview(id: string, shopId: string) {
-  //   const review = await this.reviewModel.findById(ObjectId(id));
-  //   if (!review) throw new BadRequestException('Không tìm thấy đánh giá');
-  // }
-
   async getProductReviewsWithStats(
     productId: string,
   ): Promise<StatsReviewsResponse> {

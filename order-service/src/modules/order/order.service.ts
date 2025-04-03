@@ -7,7 +7,7 @@ import {
 import { CashBackCalculator } from './design-pattern/visitor/cash-back.visitor';
 import { OrderVisitor } from './design-pattern/visitor/order.visitor';
 import { Order } from './entities/order.entity';
-import { In, Repository } from 'typeorm';
+import { Between, In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
@@ -22,6 +22,7 @@ import { StripeService } from '../payment/services/stripe.service';
 import { ORDER_STATUS } from 'src/constants/order-status';
 import { GetOrdersShopDto } from './dto/request/get-orders-shop.dto';
 import { SHIPPING_STATUS } from 'src/constants/shipping-status';
+import { GetReportShopDto } from './dto/request/get-report-shop.dto';
 
 @Injectable()
 export class OrderService {
@@ -271,5 +272,15 @@ export class OrderService {
     )
       return false;
     return true;
+  }
+  async getOrdersByShopId(getReportData: GetReportShopDto): Promise<Order[]> {
+    const { fromDate, toDate } = getReportData;
+    return await this.orderRepository.find({
+      where: {
+        createdAt: Between(new Date(fromDate), new Date(toDate)),
+      },
+      order: { createdAt: 'DESC' },
+      relations: ['orderItems'],
+    });
   }
 }

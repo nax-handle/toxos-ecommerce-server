@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package order;
+
+service OrderService {
+  rpc GetOrdersByShopId (OrdersByShopIdRequest) returns (OrdersResponse);
+}
+
+message OrdersByShopIdRequest {
+  string shopId = 1;
+  string fromDate = 2;
+  string toDate = 3;
+}
+
+message OrderResponse {
+  string id = 1;
+  string shopId = 2;
+  string userId = 3;
+  bool isReview = 4;
+  Shop shop = 5;
+  Address address = 6;
+  double totalPrice = 7;
+  double totalShipping = 8;
+  string paymentMethod = 9;
+  string status = 10;
+  string shippingStatus = 11;
+  repeated OrderItem orderItems = 12;
+  string createdAt = 13;
+  string updatedAt = 14;
+}
+
+message Shop {
+  string id = 1;
+  string name = 2;
+  string logo = 3;
+  string slug = 4;
+}
+
+message Address {
+  string street = 1;
+  string ward = 2;
+  string district = 3;
+  string city = 4;
+  string state = 5;
+  string country = 6;
+  string postalCode = 7;
+  double latitude = 8;
+  double longitude = 9;
+  string note = 10;
+}
+
+message OrderItem {
+  string id = 1;
+  string productId = 2;
+  string variantId = 3;
+  string productName = 4;
+  string productThumbnail = 5;
+  string category = 6;
+  string tags = 7;
+  double price = 8;
+  int32 quantity = 9;
+}
+
+message OrdersResponse {
+  repeated OrderResponse orders = 1;
+}

@@ -2,7 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
-
+import helmet from 'helmet';
+import * as compression from 'compression';
+import * as morgan from 'morgan';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
@@ -10,6 +12,9 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
+  app.use(helmet());
+  app.use(compression());
+  app.use(morgan('tiny'));
   await app.listen(process.env.PORT ?? 3003);
   // Microservice gRPC
   const grpcApp = await NestFactory.createMicroservice<MicroserviceOptions>(

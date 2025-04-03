@@ -132,6 +132,11 @@ export class ProductController {
     const items = await this.productService.checkStockAndPrice(data.products);
     return items;
   }
+  @GrpcMethod('ProductService', 'FindByShopId')
+  async findByShopId(data: { shopId: string }) {
+    const items = await this.productService.getProductsShop(data.shopId);
+    return { items: items };
+  }
   @EventPattern('update_stock')
   async updateStock(@Payload() data: UpdateStockDto) {
     await this.productService.updateStock(data);

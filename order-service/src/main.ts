@@ -15,6 +15,18 @@ async function bootstrap() {
       queueOptions: { durable: false },
     },
   });
+  const grpcApp = await NestFactory.createMicroservice<MicroserviceOptions>(
+    AppModule,
+    {
+      transport: Transport.GRPC,
+      options: {
+        package: ['order'],
+        protoPath: ['./src/proto/order.proto'],
+        url: '0.0.0.0:50051',
+      },
+    },
+  );
+  await grpcApp.listen();
   await app.startAllMicroservices();
   const PORT = process.env.PORT || 9001;
   await app.listen(PORT);

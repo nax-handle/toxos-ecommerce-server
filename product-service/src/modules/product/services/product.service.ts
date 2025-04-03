@@ -173,7 +173,11 @@ export class ProductService {
       },
     });
   }
-
+  async getProductOfShop(_id: string): Promise<Product> {
+    const product = await this.productModel.findOne({ shop: _id });
+    if (!product) throw new BadRequestException('Product not found');
+    return product;
+  }
   async findOne(_id: string): Promise<Product> {
     const product = await this.productModel.findById(ObjectId(_id));
     if (!product) throw new BadRequestException('Product not found');
@@ -187,5 +191,8 @@ export class ProductService {
       .lean()
       .exec();
     return products;
+  }
+  async getProductsShop(shop: string): Promise<Product[]> {
+    return await this.productModel.find({ shop: shop });
   }
 }
