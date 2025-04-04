@@ -284,10 +284,11 @@ export class OrderService {
     return true;
   }
   async getOrdersByShopId(getReportData: GetReportShopDto): Promise<Order[]> {
-    const { fromDate, toDate } = getReportData;
+    const { fromDate, toDate, shopId } = getReportData;
     return await this.orderRepository.find({
       where: {
         createdAt: Between(new Date(fromDate), new Date(toDate)),
+        shopId: shopId,
       },
       order: { createdAt: 'DESC' },
       relations: ['orderItems'],

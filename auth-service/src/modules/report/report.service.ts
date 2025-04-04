@@ -37,7 +37,6 @@ export class ReportService {
     const orderData = await lastValueFrom(
       this.orderService.GetOrdersByShopId({ ...getReportData }),
     );
-    console.log(orderData);
     return {
       orders: orderData?.orders ?? [],
       products: productData?.items ?? [],
@@ -59,6 +58,7 @@ export class ReportService {
     visitors.forEach((visitor) => {
       visitor.accept(pdfReportVisitor);
     });
+
     return pdfReportVisitor.pdfDoc;
   }
 }

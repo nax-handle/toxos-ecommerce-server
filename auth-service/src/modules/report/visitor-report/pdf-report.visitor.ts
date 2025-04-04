@@ -1,9 +1,11 @@
-import { PDFDocument, PDFFont, StandardFonts } from 'pdf-lib';
+import { PDFDocument, PDFFont } from 'pdf-lib';
 import { ReportVisitor } from '../interface/report-visitor.interface';
 import { Product } from '../interface/product.interface';
 import { Order, OrderItem } from '../interface/order.interface';
 import { readFileSync } from 'fs';
-import path from 'path';
+import { join } from 'path';
+import fontkit from '@pdf-lib/fontkit';
+
 export class PdfReportVisitor implements ReportVisitor {
   constructor(
     public readonly pdfDoc: PDFDocument,
@@ -12,17 +14,16 @@ export class PdfReportVisitor implements ReportVisitor {
 
   public static async create(): Promise<PdfReportVisitor> {
     const pdfDoc = await PDFDocument.create();
-    // const fontPath = path.resolve(
-    //   __dirname,
-    //   '../../assets/font/Roboto_SemiCondensed-Italic.ttf',
-    // );
+
+    pdfDoc.registerFontkit(fontkit);
+
     const fontBytes = readFileSync(
-      path.resolve(
-        __dirname,
-        '../../../assets/font/Roboto_SemiCondensed-Italic.ttf',
-      ),
+      join(process.cwd(), 'src', 'assets', 'font', 'Roboto-Regular.ttf'),
     );
-    const font = await pdfDoc.embedFont(fontBytes);
+    console.log(fontBytes);
+    const font = await pdfDoc.embedFont(fontBytes, {
+      subset: true,
+    });
 
     return new PdfReportVisitor(pdfDoc, font);
   }

@@ -4,9 +4,15 @@ import { ReportController } from './report.controller';
 import { ExcelReportVisitor } from './visitor-report/excel-report.visitor';
 import { PdfReportVisitor } from './visitor-report/pdf-report.visitor';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { TokenService } from '../auth/services/token.service';
+import { JwtService } from '@nestjs/jwt';
+import { UserModule } from '../user/user.module';
+import { ShopModule } from '../shop/shop.module';
 
 @Module({
   imports: [
+    UserModule,
+    ShopModule,
     ClientsModule.register([
       {
         name: 'GRPC_PRODUCT_SERVICE',
@@ -29,7 +35,13 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     ]),
   ],
   controllers: [ReportController],
-  providers: [ReportService, ExcelReportVisitor, PdfReportVisitor],
+  providers: [
+    ReportService,
+    ExcelReportVisitor,
+    PdfReportVisitor,
+    TokenService,
+    JwtService,
+  ],
   exports: [ReportService],
 })
 export class ReportModule {}
