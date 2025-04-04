@@ -269,8 +269,11 @@ export class OrderService {
         order.shippingStatus === SHIPPING_STATUS.DELIVERED &&
         order.isReview === true
       )
-    )
+    ) {
       return false;
+    }
+    order.isReview = false;
+    await this.orderRepository.save(order);
     return true;
   }
   async getOrdersByShopId(getReportData: GetReportShopDto): Promise<Order[]> {

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ReviewProductDto } from './dto/review-product.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Review, ReviewDocument } from './schema/review.schema';
@@ -12,23 +12,34 @@ import {
 import { ProductReviewsResponse } from './dto/response/review-response.dto';
 import { ProductService } from '../product/services/product.service';
 import { Observer } from './observer/observer';
+import { ClientGrpc } from '@nestjs/microservices';
+import { OrderService } from 'src/interfaces/order-service.interface';
 
 @Injectable()
 export class ReviewService {
+  private orderService: OrderService;
   constructor(
+    @Inject('GRPC_ORDER_SERVICE') private clientOrder: ClientGrpc,
     @InjectModel(Review.name)
     private readonly reviewModel: Model<ReviewDocument>,
     private readonly productService: ProductService,
     private readonly observer: Observer,
   ) {}
+  onModuleInit() {
+    this.orderService =
+      this.clientOrder.getService<OrderService>('OrderService');
+  }
   async reviewProduct(
     reviewProduct: ReviewProductDto[],
     userId: string,
   ): Promise<void> {
-    const { shopId } = reviewProduct[0];
+    const { shopId, orderId } = reviewProduct[0];
     await this.productService.getProductOfShop(shopId);
-    const result = true;
-    if (!result)
+    const result = await this.orderService
+      .IsReviewAllowed({ id: orderId })
+      .toPromise();
+    console.log(result);
+    if (!result?.allowed)
       throw new BadRequestException(
         'Không thể đánh giá sản phẩm vui lòng thử lại',
       );
@@ -38,8 +49,14 @@ export class ReviewService {
       likes: 0,
       userId,
     }));
-    await this.reviewModel.insertMany(reviews);
-    // this.observer.observerReview();
+    const reviewedProducts = await this.reviewModel.insertMany(reviews);
+    reviewedProducts.map((item) =>
+      this.observer.observerReview({
+        ...item,
+        productId: item.product.toString(),
+        reviewId: item._id.toString(),
+      }),
+    );
   }
   async deleteReview(id: string, userId: string): Promise<void> {
     const review = await this.reviewModel.findOne({

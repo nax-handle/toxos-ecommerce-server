@@ -97,15 +97,16 @@ export class OrderController {
     const orderId = params.id;
     return this.orderService.setOrderPackedStatus(shopId, orderId);
   }
-  @Post('test')
-  async test(@Body() Body: { id: string }) {
-    return this.orderService.isReviewAllowed(Body.id);
+  @GrpcMethod('OrderService', 'IsReviewAllowed')
+  async isReviewAllowed(
+    @Body() body: { id: string },
+  ): Promise<{ allowed: boolean }> {
+    const allowed = await this.orderService.isReviewAllowed(body.id);
+    return { allowed };
   }
   @GrpcMethod('OrderService', 'GetOrdersByShopId')
   async getOrdersByShopId(data: GetReportShopDto) {
-    console.log(data);
     const orders = await this.orderService.getOrdersByShopId(data);
-    console.log(orders);
     return { orders };
   }
 }
