@@ -7,6 +7,7 @@ import { PaymentModule } from './modules/payment/payment.module';
 import { MySQLModule } from './database/mysql.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { RabbitMQModule } from './modules/rabbitmq/rabbitmq.module';
+import { StatisticModule } from './modules/statistic/statistic.module';
 
 @Global()
 @Module({
@@ -38,6 +39,7 @@ import { RabbitMQModule } from './modules/rabbitmq/rabbitmq.module';
     VoucherModule,
     PaymentModule,
     RabbitMQModule,
+    StatisticModule,
   ],
   providers: [],
   exports: [ClientsModule],

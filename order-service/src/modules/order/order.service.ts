@@ -7,7 +7,13 @@ import {
 import { CashBackCalculator } from './design-pattern/visitor/cash-back.visitor';
 import { OrderVisitor } from './design-pattern/visitor/order.visitor';
 import { Order } from './entities/order.entity';
-import { Between, In, Repository } from 'typeorm';
+import {
+  Between,
+  In,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { ClientGrpc, ClientProxy } from '@nestjs/microservices';
@@ -23,6 +29,7 @@ import { ORDER_STATUS } from 'src/constants/order-status';
 import { GetOrdersShopDto } from './dto/request/get-orders-shop.dto';
 import { SHIPPING_STATUS } from 'src/constants/shipping-status';
 import { GetReportShopDto } from './dto/request/get-report-shop.dto';
+import { GetStatisticDto } from './dto/request/get-statistic.dto';
 
 @Injectable()
 export class OrderService {
@@ -285,5 +292,66 @@ export class OrderService {
       order: { createdAt: 'DESC' },
       relations: ['orderItems'],
     });
+  }
+  async getOrderStatistics(getReportData: GetStatisticDto) {
+    const { fromDate, toDate, shopId } = getReportData;
+    const whereDate = {};
+    if (fromDate && toDate) {
+      whereDate['createdAt'] = Between(fromDate, toDate);
+    } else if (fromDate) {
+      whereDate['createdAt'] = MoreThanOrEqual(fromDate);
+    } else if (toDate) {
+      whereDate['createdAt'] = LessThanOrEqual(toDate);
+    }
+    const [totalOrders, pendingCount, deliveredCount, totalRevenue] =
+      await Promise.all([
+        this.orderRepository.count({
+          where: {
+            ...whereDate,
+            shopId: shopId,
+          },
+        }),
+        this.orderRepository.count({
+          where: {
+            status: ORDER_STATUS.PENDING,
+            ...whereDate,
+            shopId: shopId,
+          },
+        }),
+        this.orderRepository.count({
+          where: {
+            shippingStatus: SHIPPING_STATUS.DELIVERED,
+            ...whereDate,
+            shopId: shopId,
+          },
+        }),
+        await this.orderRepository
+          .createQueryBuilder('order')
+          .select('SUM(order.totalPrice)', 'sum')
+          .where(
+            'order.shippingStatus = :shippingStatus AND order.shopId = :shopId',
+            {
+              shippingStatus: SHIPPING_STATUS.DELIVERED,
+              shopId,
+            },
+          )
+          .andWhere(
+            fromDate ? 'order.createdAt >= :fromDate' : '1=1',
+            fromDate ? { fromDate } : {},
+          )
+          .andWhere(
+            toDate ? 'order.createdAt <= :toDate' : '1=1',
+            toDate ? { toDate } : {},
+          )
+          .getRawOne()
+          .then((res) => Number(res.sum || 0)),
+      ]);
+
+    return {
+      totalOrders,
+      pendingOrders: pendingCount,
+      deliveredOrders: deliveredCount,
+      totalRevenue,
+    };
   }
 }

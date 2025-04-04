@@ -24,6 +24,7 @@ import {
 } from '@nestjs/microservices';
 import { GetOrdersDto } from './dto/request/get-orders.dto';
 import { GetReportShopDto } from './dto/request/get-report-shop.dto';
+import { GetStatisticDto } from './dto/request/get-statistic.dto';
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
@@ -66,6 +67,19 @@ export class OrderController {
   async cashBackOrder(@Payload() body: string[]) {
     await this.orderService.cashBackOrder(body);
   }
+  @Get('shop/statistics')
+  async getOrderStatistic(
+    @Param() params: GetStatisticDto,
+    @Req() req: Request,
+  ) {
+    const shopId = req.headers['x-shop-id'] as string;
+    const { fromDate, toDate } = params;
+    return this.orderService.getOrderStatistics({
+      shopId,
+      fromDate,
+      toDate,
+    });
+  }
   @Get('shop')
   async getOrdersShop(
     @Query('page') page: number = 1,
@@ -88,6 +102,7 @@ export class OrderController {
     const orderId = params.id;
     return this.orderService.getOrderShopDetails(shopId, orderId);
   }
+
   @Patch('shop/packed/:id')
   async setOrderPackedStatus(
     @Param() params: { id: string },
