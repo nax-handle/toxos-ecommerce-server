@@ -46,4 +46,12 @@ export class ShopService {
     if (!shop) throw new BadRequestException('Shop not found');
     return shop;
   }
+  async findEmailShop(shopId: string): Promise<string> {
+    const shop = await this.shopRepository.findOne({
+      where: { id: shopId },
+      relations: ['user'],
+    });
+    if (!shop) throw new BadRequestException('Shop not found');
+    return shop.user.email;
+  }
 }

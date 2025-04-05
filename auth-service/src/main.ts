@@ -26,10 +26,24 @@ async function bootstrap() {
       urls: [process.env.RMQ_URL],
       queue: 'auth_queue',
       queueOptions: { durable: false },
-      retryAttempts: 5,
-      retryDelay: 3000,
     },
   });
+  app.connectMicroservice({
+    transport: Transport.RMQ,
+    options: {
+      urls: [process.env.RMQ_URL],
+      queue: 'notification_queue',
+      queueOptions: { durable: false },
+    },
+  });
+  // app.connectMicroservice({
+  //   transport: Transport.RMQ,
+  //   options: {
+  //     urls: [process.env.RMQ_URL],
+  //     queue: 'notification_queue',
+  //     queueOptions: { durable: false },
+  //   },
+  // });
   await app.startAllMicroservices();
   const configService = app.get(ConfigService);
   const port = configService.get<string>('PORT') || 3001;

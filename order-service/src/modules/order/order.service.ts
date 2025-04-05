@@ -355,4 +355,14 @@ export class OrderService {
       totalRevenue,
     };
   }
+  async updateStatusDelivered(orderId: string): Promise<Order> {
+    const order = await this.orderRepository.findOneBy({ id: orderId });
+    if (!order) throw new BadRequestException('Không tìm thấy đơn hàng');
+    if (order.shippingStatus === SHIPPING_STATUS.PACKED) {
+      order.shippingStatus = SHIPPING_STATUS.DELIVERED;
+      await this.orderRepository.save(order);
+      return order;
+    }
+    throw new BadRequestException('Cập nhật trạng thái giao hàng thất bại');
+  }
 }

@@ -102,7 +102,11 @@ export class OrderController {
     const orderId = params.id;
     return this.orderService.getOrderShopDetails(shopId, orderId);
   }
-
+  @Post('delivered/:id')
+  async updateStatusDelivered(@Param() params: { id: string }): Promise<Order> {
+    const orderId = params.id;
+    return this.orderService.updateStatusDelivered(orderId);
+  }
   @Patch('shop/packed/:id')
   async setOrderPackedStatus(
     @Param() params: { id: string },

@@ -20,7 +20,22 @@ import { ConfigService } from '@nestjs/config';
       },
       inject: [ConfigService],
     },
+    {
+      provide: 'RMQ_NOTIFICATION',
+      useFactory: (configService: ConfigService) => {
+        const rmqUrl = configService.get('RMQ_URL') as string;
+        return ClientProxyFactory.create({
+          transport: Transport.RMQ,
+          options: {
+            urls: [rmqUrl],
+            queue: 'notification_queue',
+            queueOptions: { durable: false },
+          },
+        });
+      },
+      inject: [ConfigService],
+    },
   ],
-  exports: ['RMQ_ORDER'],
+  exports: ['RMQ_ORDER', 'RMQ_NOTIFICATION'],
 })
 export class RabbitMQModule {}

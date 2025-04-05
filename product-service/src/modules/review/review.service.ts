@@ -38,7 +38,6 @@ export class ReviewService {
     const result = await this.orderService
       .IsReviewAllowed({ id: orderId })
       .toPromise();
-    console.log(result);
     if (!result?.allowed)
       throw new BadRequestException(
         'Không thể đánh giá sản phẩm vui lòng thử lại',
@@ -53,6 +52,8 @@ export class ReviewService {
     reviewedProducts.map((item) =>
       this.observer.observerReview({
         ...item,
+        comment: item.comment,
+        rating: item.rating,
         productId: item.product.toString(),
         reviewId: item._id.toString(),
       }),
