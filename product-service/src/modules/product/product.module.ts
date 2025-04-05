@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ProductService } from './services/product.service';
 import { ProductController } from './product.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -15,7 +15,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { CacheProxy } from 'src/common/cache/cache';
 import { RedisService } from 'src/databases/redis/redis.service';
 import { ProductFilterBuilder } from './builder/product-filter.builder';
-import { FileValidationMiddleware } from 'src/common/middlewares/file.middleware';
+// import { FileValidationMiddleware } from 'src/common/middlewares/file.middleware';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
@@ -49,8 +49,9 @@ import { FileValidationMiddleware } from 'src/common/middlewares/file.middleware
   ],
   exports: [ProductService],
 })
-export class ProductModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(FileValidationMiddleware).forRoutes('product/create');
-  }
-}
+export class ProductModule {}
+// implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer.apply(FileValidationMiddleware).forRoutes('product/create');
+//   }
+// }

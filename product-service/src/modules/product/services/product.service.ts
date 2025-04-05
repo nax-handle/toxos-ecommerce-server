@@ -31,7 +31,6 @@ export class ProductService {
     private readonly productRepository: ProductRepository,
     private readonly inventoryService: InventoryService,
     private readonly cacheProxy: CacheProxy,
-    private readonly productFilterBuilder: ProductFilterBuilder,
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
   ) {}
 
@@ -57,25 +56,25 @@ export class ProductService {
   ): Promise<PaginatedProductResponse> {
     const { page, size, minPrice, maxPrice, rating, keyword, sortByPrice } =
       searchProduct;
-    this.productFilterBuilder
+    const productFilterBuilder = new ProductFilterBuilder();
+    productFilterBuilder
       .withName(keyword)
       .withPriceGreaterThan(Number(minPrice))
       .withPriceLessThan(Number(maxPrice))
       .withRatingGreaterThan(Number(rating));
     const countPipeline = [
-      ...this.productFilterBuilder.build(),
+      ...productFilterBuilder.build(),
       { $count: 'total' },
     ];
-    this.productFilterBuilder.withPaginate(page, size);
-    this.productFilterBuilder.withSortByPrice(sortByPrice);
-    const pipeline = this.productFilterBuilder.build();
+    productFilterBuilder.withPaginate(page, size);
+    productFilterBuilder.withSortByPrice(sortByPrice);
+    const pipeline = productFilterBuilder.build();
     const [total, data] = await Promise.all([
       this.productModel.aggregate(countPipeline).exec() as Promise<
         { total: number }[]
       >,
       this.productModel.aggregate(pipeline).exec(),
     ]);
-    this.productFilterBuilder.reset();
     return {
       total: total[0]?.total,
       totalPage: Math.ceil(total[0]?.total / size),

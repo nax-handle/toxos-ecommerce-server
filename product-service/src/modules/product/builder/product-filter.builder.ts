@@ -61,8 +61,4 @@ export class ProductFilterBuilder implements FilterBuilder {
     }
     return pipeline;
   }
-  reset() {
-    this.pipeline = [];
-    this.match = {};
-  }
 }
